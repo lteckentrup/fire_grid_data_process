@@ -11,8 +11,28 @@ s <- SpatialPoints(cbind(har.score.df$coords.x1, har.score.df$coords.x2), proj4s
 # transfor to gps
 coords.repro.tmp <- spTransform(s, lonlat)
 coords.repro.df <- as.data.frame(coords.repro.tmp)
+names(coords.repro.df) <- c('lon','lat')
 # range(coords.repro.df$coords.x2)
-har.score.df.gpc <- cbind(har.score.df,coords.repro.df)
+har.score.df.gps <- cbind(har.score.df,coords.repro.df)
+
+har.score.df.gps <- har.score.df.gps[,c('lon','lat',
+                                        'coords.x1','coords.x2',
+                                        'DATE',
+                                        'S_DPTH','S_CVR','NS_CVR','NS_TOP',
+                                        'NS_DEAD','E_CVR','E_TOP',
+                                        'CNPY_CVR','CNPY_BASE','CNPY_TOP',
+                                        'LAST_FIRE','tsf')]
+
+names(har.score.df.gps) <- c('lon','lat',
+                             'coords.x1','coords.x2',
+                             'Date',
+                             'S_fuel_DPTH_mm','S_CVR_percent','NS_CVR_precent','NS_TOP_height_cm',
+                             'NS_DEAD_percent','E_CVR_percent','E_TOP_hight_cm',
+                             'CNPY_CVR','CNPY_BASE_hight_cm','CNPY_TOP_hight_cm',
+                             'LAST_FIRE_yr','tsf')
+
+write.csv(har.score.df.gps,'cache/hazard.score.gps.csv',row.names = F)
+
 # plot on a map####
 library(maps)
 # plot maps
