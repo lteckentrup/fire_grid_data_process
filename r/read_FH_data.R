@@ -12,7 +12,7 @@ s <- SpatialPoints(cbind(har.score.df$coords.x1, har.score.df$coords.x2), proj4s
 coords.repro.tmp <- spTransform(s, lonlat)
 coords.repro.df <- as.data.frame(coords.repro.tmp)
 # range(coords.repro.df$coords.x2)
-
+har.score.df.gpc <- cbind(har.score.df,coords.repro.df)
 # plot on a map####
 library(maps)
 # plot maps
