@@ -5,17 +5,13 @@ for (i in 1:ncol(input.df)) {
   input.df[,i] <- replace(input.df[,i],list = which(input.df[,i]< -100),NA)
 }
 
-# summary(input.df)
-# test.df <- input.df#[1:2000,]
-# summary(test.df)
-# test.df <- test.df[,c('overall_hz',#target
-#                       'soil.density' , 'ph' , 'clay' , #soil attributes
-#                       'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
-#                       'tmax' , 'rain' , 'vph15' , #climate
-#                       'lai.opt')]#vegetation
-# test.df <- test.df[complete.cases(test.df),]
-# test.df <- test.df[1:1000,]
-# test.df$overall_hz <- as.factor(test.df$overall_hz)
+input.df$overall_hz <- as.factor(input.df$overall_hz)
+input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- '0'
+input.df$nearsurface_hz <- as.factor(input.df$nearsurface_hz)
+input.df$nearsurface_hz <- droplevels(input.df$nearsurface_hz)
+
+input.df$bark_hz <- as.factor(input.df$bark_hz)
+input.df$surface_hz <- as.factor(input.df$surface_hz)
 # function to fit rf$$$$######
 library(randomForest)
 require(caTools)
@@ -28,8 +24,8 @@ fit.rf.func <- function(dat,y.nm){
                     'lai.opt')]#vegetation
   
   
-  # test.df <- test.df[complete.cases(test.df),]
-  test.df <- test.df#[1000:5000,]
+  # test.df <- test.df[!is.na(test.df[,y.nm]),]
+  # test.df <- test.df#[1000:5000,]
   set.seed(1935)
   train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
   TrainSet <- test.df[train,]
@@ -46,40 +42,49 @@ fit.rf.func <- function(dat,y.nm){
 }
 
 # fit rf models########
-# highets
+# 1. highets#####
 rf.fit.canopy.h <- fit.rf.func(dat = input.df,
                                y.nm = 'CNPY_TOP_hight_cm')
 
 saveRDS(rf.fit.canopy.h,'cache/rf.fit.canopy.height.rds')
-# 
+# 2.
 rf.fit.ns.h <- fit.rf.func(dat = input.df,
                                y.nm = 'NS_TOP_height_cm')
 
 saveRDS(rf.fit.ns.h,'cache/rf.fit.ns.height.rds')
-# hz score
+# 3. hz score####
 rf.fit.hz.elevated <- fit.rf.func(dat = input.df,
                            y.nm = 'elevated_hz')
 saveRDS(rf.fit.hz.elevated,'cache/rf.fit.hs.elevated.rds')
-# 
-rf.fit.hz.ns <- fit.rf.func(dat = input.df,
+# 4. 
+input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- 'NA'
+ns.df <- input.df[!is.na(input.df$nearsurface_hz),]
+ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
+
+rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
                                   y.nm = 'nearsurface_hz')
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')
-# 
+# 5 
 rf.fit.hz.bark <- fit.rf.func(dat = input.df,
                             y.nm = 'bark_hz')
 saveRDS(rf.fit.hz.bark,'cache/rf.fit.hz.bark.rds')
-# 
+# 6
 rf.fit.hz.surface <- fit.rf.func(dat = input.df,
                               y.nm = 'surface_hz')
 saveRDS(rf.fit.hz.surface,'cache/rf.fit.hz.surface.rds')
 
 
+# predict with fit####
+randomForest(x = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
+             y = c("Species"),
+             training_frame = train,
+             model_id = "our.rf",
+             seed = 1234)
 
 
-
-
-
-
+levels(input.df$surface_hz)
+summary(ns.df$nearsurface_hz)
+levels(ns.df$nearsurface_hz)
 
 
 
