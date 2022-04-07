@@ -1,27 +1,22 @@
-# read and clean data####
-input.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
+# 
+source('r/process_input.R')
 
-for (i in 1:ncol(input.df)) {
-  input.df[,i] <- replace(input.df[,i],list = which(input.df[,i]< -100),NA)
-}
-
-input.df$overall_hz <- as.factor(input.df$overall_hz)
-input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- '0'
-input.df$nearsurface_hz <- as.factor(input.df$nearsurface_hz)
-input.df$nearsurface_hz <- droplevels(input.df$nearsurface_hz)
-
-input.df$bark_hz <- as.factor(input.df$bark_hz)
-input.df$surface_hz <- as.factor(input.df$surface_hz)
+input.df$fuelType_vicnsw <- as.factor(input.df$fuelType_vicnsw )
 # function to fit rf$$$$######
 library(randomForest)
 require(caTools)
-fit.rf.func <- function(dat,y.nm){
+library(caret)
+# library(e1071)
+fit.rf.func <- function(dat,y.nm,
+                        x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
+                        'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
+                        'tmax' , 'rain' , 'vph15', #climate
+                        'pet','map',#long term clim 
+                        'lai.opt'),#vegetation,
+                        ...){
   formula.use <- as.formula(paste0(y.nm,'~.'))
   test.df <- dat[,c(y.nm,#target
-                    'soil.density' , 'ph' , 'clay' , #soil attributes
-                    'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
-                    'tmax' , 'rain' , 'vph15', #climate
-                    'lai.opt')]#vegetation
+                    x.nm)]
   
   
   # test.df <- test.df[!is.na(test.df[,y.nm]),]
@@ -29,22 +24,37 @@ fit.rf.func <- function(dat,y.nm){
   set.seed(1935)
   train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
   TrainSet <- test.df[train,]
-  ValidSet <- test.df[-train,]
+  # ValidSet <- test.df[-train,]
   # 
   
   model.hieght <- randomForest(formula.use,
                                data = TrainSet, importance = TRUE,na.action=na.omit,
-                               ntree = 500,mtry=9)
+                               ...)
   # varImpPlot(model.hieght)
   # summary(TrainSet)
   
   return(model.hieght)
 }
+# fuel type#####
+tmp.ft.df <- input.df[!is.na(input.df$fuelType_vicnsw),]
 
+tmp.ft.df <- tmp.ft.df[tmp.ft.df$fuelType_vicnsw %in% names(which(table(tmp.ft.df$fuelType_vicnsw)>=100)), ]
+tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$fuelType_vicnsw)
+rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
+                         y.nm = 'fuelType_vicnsw',
+                         x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
+                                  'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
+                                  'tmax' , 'rain' , 'vph15', #climate
+                                  'pet','map',#long term clim 
+                                  'lai.opt'))
+
+saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
 # fit rf models########
+
 # 1. highets#####
 rf.fit.canopy.h <- fit.rf.func(dat = input.df,
                                y.nm = 'CNPY_TOP_hight_cm')
+hist(input.df$CNPY_TOP_hight_cm)
 
 saveRDS(rf.fit.canopy.h,'cache/rf.fit.canopy.height.rds')
 # 2.
@@ -74,6 +84,20 @@ rf.fit.hz.surface <- fit.rf.func(dat = input.df,
 saveRDS(rf.fit.hz.surface,'cache/rf.fit.hz.surface.rds')
 
 
+predict(rf.fit.canopy.h,)
+
+
+
+
+
+
+
+
+
+
+
+
+
 # predict with fit####
 randomForest(x = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
              y = c("Species"),
@@ -83,9 +107,9 @@ randomForest(x = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
 
 
 levels(input.df$surface_hz)
-summary(ns.df$nearsurface_hz)
+summary(tmp.ft.df$fuelType_vicnsw )
 levels(ns.df$nearsurface_hz)
-
+table(tmp.ft.df$fuelType_vicnsw)[,2]
 
 
 

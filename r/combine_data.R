@@ -2,11 +2,12 @@
 met.df <- readRDS('cache/met.rds')
 hs.soil.df <- readRDS('cache/hazardScoreWithSoil.rds')
 wi.df <- readRDS('cache/wetnessByGPS.rds')
+fuelType.df <- readRDS('cache/fuelType.rds')
 
 hs.soil.wi.df <- merge(hs.soil.df,wi.df,all.x=T)
 hs.soil.wi.met.df<- merge(hs.soil.wi.df,met.df,all.x=T)
-
-saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.rds')
+hs.soil.wi.met.df.fuel.df <-  merge(hs.soil.wi.met.df,fuelType.df,all.x=T)
+saveRDS(hs.soil.wi.met.df.fuel.df,'cache/hs.soil.topo.met.rds')
 
 # # read opt lai####
 # library(raster)
@@ -37,6 +38,7 @@ get.vp.from.t.func <- function(temperature){
 
 hs.soil.wi.met.df$vpd <- get.vp.from.t.func(hs.soil.wi.met.df$tmax) - hs.soil.wi.met.df$vph15/10
 
+library(g1.opt.func)
 opt.out.ls <- list()
 n.days <- 365.25
 for (i in 1:nrow(hs.soil.wi.met.df)) {
@@ -58,14 +60,22 @@ hs.soil.wi.met.df$lai.opt <- opt.out.df[,'LAI']
 # plot(hs.soil.wi.met.df$lai.opt)
 saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.lai.rds')
 
+# add longterm climate######
+pet.ls <- readRDS('data/met/pet.gps.rds')
+library(raster)
+pet.ra <- raster(t(pet.ls[['pet']]),
+                 xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
+                 ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
+map.ra <- raster(t(pet.ls[['map']]),
+                 xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
+                 ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
-
-
-
-
-
-
+tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
+tmp.df$pet <- extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
+tmp.df$map <- extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
+# 
+saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
 
 
 
