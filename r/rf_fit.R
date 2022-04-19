@@ -9,7 +9,7 @@ library(caret)
 # library(e1071)
 fit.rf.func <- function(dat,y.nm,
                         x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
-                        'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
+                        'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                         'tmax' , 'rain' , 'vph15', #climate
                         'pet','map',#long term clim 
                         'lai.opt'),#vegetation,

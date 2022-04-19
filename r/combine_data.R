@@ -1,7 +1,7 @@
 # combisoil and met####
 met.df <- readRDS('cache/met.rds')
 hs.soil.df <- readRDS('cache/hazardScoreWithSoil.rds')
-wi.df <- readRDS('cache/wetnessByGPS.rds')
+wi.df <- readRDS('cache/wetness_curvature_ByGPs.rds')
 fuelType.df <- readRDS('cache/fuelType.rds')
 
 hs.soil.wi.df <- merge(hs.soil.df,wi.df,all.x=T)
@@ -59,7 +59,8 @@ opt.out.df <- do.call(rbind,opt.out.ls)
 hs.soil.wi.met.df$lai.opt <- opt.out.df[,'LAI']
 # plot(hs.soil.wi.met.df$lai.opt)
 saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.lai.rds')
-
+# lai.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
+# hs.soil.wi.met.df$lai.opt <-lai.df$lai.opt
 # add longterm climate######
 pet.ls <- readRDS('data/met/pet.gps.rds')
 library(raster)

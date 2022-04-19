@@ -62,7 +62,27 @@ for (i in 1:nrow(gps.df)) {
 }
 saveRDS(gps.df,'cache/wetnessByGPs.rds')
 
+# add curvature####
+# get profile_c
+fn <- 'data/topo/curvature_profile/profile_curvature_3s.tif'
+c_profile.ra <- raster(fn)
+gps.df$curvature_profile <- extract(x = c_profile.ra,y = cbind(gps.df$lon,gps.df$lat))
+# get plan_c
+for (i in 1:nrow(gps.df)) {
+  fn <- file.path('data/topo/curvature_plan/PlanCurvature_1_arc-second_resolution/tiles/',
+                  gps.df$east[i],
+                  gps.df$south[i],
+                  paste0(gps.df$east[i],gps.df$south[i]),
+                  'w001001.adf')
+  c_plan.ra <- raster(fn)
+  print(i)
+  gps.df$wi[i] <- extract(x = c_plan.ra,y = cbind(gps.df$lon[i],gps.df$lat[i]))
+  
+  
+  
+}
 
+saveRDS(gps.df,'cache/wetness_curvature_ByGPs.rds')
 
 
 
