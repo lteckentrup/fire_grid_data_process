@@ -43,28 +43,32 @@ tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$fuelType_vicnsw)
 rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          y.nm = 'fuelType_vicnsw',
                          x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
-                                  'rad.short.jan' ,'rad.short.jul', 'wi' ,#topo
+                                  'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                                   'tmax' , 'rain' , 'vph15', #climate
                                   'pet','map',#long term clim 
                                   'lai.opt'))
-
+# varImpPlot(rf.fit.ft)
+# previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
 saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
 # fit rf models########
 
 # 1. highets#####
 rf.fit.canopy.h <- fit.rf.func(dat = input.df,
-                               y.nm = 'CNPY_TOP_hight_cm')
-hist(input.df$CNPY_TOP_hight_cm)
-
+                               y.nm = 'CNPY_TOP_hight_cm',mtry=5)
+# varImpPlot(rf.fit.canopy.h)
+# hist(input.df$CNPY_TOP_hight_cm)
+# rf.fit.canopy.h.old <- readRDS('cache/rf.fit.canopy.height.rds')
 saveRDS(rf.fit.canopy.h,'cache/rf.fit.canopy.height.rds')
 # 2.
 rf.fit.ns.h <- fit.rf.func(dat = input.df,
-                               y.nm = 'NS_TOP_height_cm')
+                               y.nm = 'NS_TOP_height_cm',mtry=5)
 
 saveRDS(rf.fit.ns.h,'cache/rf.fit.ns.height.rds')
 # 3. hz score####
 rf.fit.hz.elevated <- fit.rf.func(dat = input.df,
-                           y.nm = 'elevated_hz')
+                           y.nm = 'elevated_hz',mtry=5)
+# varImpPlot(rf.fit.hz.elevated)
+# rf.fit.hz.elevated.old <- readRDS('cache/rf.fit.hs.elevated.rds')
 saveRDS(rf.fit.hz.elevated,'cache/rf.fit.hs.elevated.rds')
 # 4. 
 input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- 'NA'
@@ -72,15 +76,15 @@ ns.df <- input.df[!is.na(input.df$nearsurface_hz),]
 ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
 
 rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
-                                  y.nm = 'nearsurface_hz')
+                                  y.nm = 'nearsurface_hz',mtry=5)
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')
 # 5 
 rf.fit.hz.bark <- fit.rf.func(dat = input.df,
-                            y.nm = 'bark_hz')
+                            y.nm = 'bark_hz',mtry=5)
 saveRDS(rf.fit.hz.bark,'cache/rf.fit.hz.bark.rds')
 # 6
 rf.fit.hz.surface <- fit.rf.func(dat = input.df,
-                              y.nm = 'surface_hz')
+                              y.nm = 'surface_hz',mtry=5)
 saveRDS(rf.fit.hz.surface,'cache/rf.fit.hz.surface.rds')
 
 
