@@ -43,7 +43,7 @@ fit.rf.func <- function(dat,y.nm,
 # fuel type#####
 tmp.ft.df <- input.df[!is.na(input.df$fuelType_vicnsw),]
 
-tmp.ft.df <- tmp.ft.df[tmp.ft.df$fuelType_vicnsw %in% names(which(table(tmp.ft.df$fuelType_vicnsw)>=100)), ]
+tmp.ft.df <- tmp.ft.df[tmp.ft.df$fuelType_vicnsw %in% names(which(table(tmp.ft.df$fuelType_vicnsw)>=100)),]
 tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$fuelType_vicnsw)
 rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          y.nm = 'fuelType_vicnsw',
@@ -55,9 +55,8 @@ rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
 # varImpPlot(rf.fit.ft,type=2)
 # previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
 saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
-# fit rf models########
 
-pairs(test.dat)
+# fit rf models########
 # 1. highets#####
 rf.fit.canopy.h <- fit.rf.func(dat = input.df,
                                y.nm = 'CNPY_TOP_hight_cm',mtry=5)
