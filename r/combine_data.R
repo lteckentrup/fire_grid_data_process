@@ -107,10 +107,6 @@ saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
 
 
 
-
-
-
-
 # 
 summary(hs.soil.wi.met.df)
 # 

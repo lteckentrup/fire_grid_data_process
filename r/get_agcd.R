@@ -94,6 +94,29 @@ get.agcd.met.func <- function(dat,met.nm){
   
   return(read.func(fn=file.nm))
 }
+# 
+get.rain.silo.func <- function(lat,lon,yr.mon){
+  # separate yr and mon
+  yr.in <- strsplit(x = yr.mon,split = '[.]')[[1]][1]
+  mon.in <- as.numeric(strsplit(x = yr.mon,split = '[.]')[[1]][2])
+  # get file
+  met.nm <-  sprintf('data/met/precip_silo/precip.%s.nc',yr.in)
+  
+  rain.nc <- nc_open(met.nm)
+# get gps
+  lon.vec <- ncvar_get(rain.nc, 'lon')
+  lat.vec <- ncvar_get(rain.nc, 'lat')
+  # get rain
+  rain.df <- try(ncvar_get(rain.nc, 'monthly_rain'))
+  
+  rain.mon.df <- rain.df[,,mon.in]
+  rain.raster <- raster(t(rain.mon.df),
+                       xmn=min(lon.vec), xmx=max(lon.vec), ymn=min(lat.vec), ymx=max(lat.vec))
+  met.raster.right <- flip(rain.raster, direction='y')
+
+  value.tar <- extract(x = met.raster.right,y = cbind(lon,lat),method = 'bilinear',small=T)
+  return(value.tar)
+}
 # get the unique dates
 date.vec <- unique(gps.date.df$previous.month)
 gps.date.ls <- list()
@@ -108,7 +131,8 @@ func2apply <- function(x,met.nm,dat){
 
 # x <- sapply(date.vec, func2apply,met.nm = 'tmax',dat = gps.date.df[1:10,])
 
-for(i in seq_along(date.vec)){
+for(i in 193:length(date.vec)#seq_along(date.vec)
+    ){
   tmp.df <- gps.date.df[gps.date.df$previous.month == date.vec[i],]
   
   tmax.vec <- try(get.agcd.met.func(dat = tmp.df,met.nm = 'tmax'))
@@ -118,7 +142,7 @@ for(i in seq_along(date.vec)){
     tmp.df$tmax <- NA
   }
   
-  rain.vec <- try(get.agcd.met.func(tmp.df,met.nm = 'rain'))
+  rain.vec <- try(get.rain.silo.func(lat = tmp.df$lat,lon = tmp.df$lon,yr.mon = date.vec[i]))#try(get.agcd.met.func(tmp.df,met.nm = 'rain'))
   if(class(rain.vec) != 'try-error'){
     tmp.df$rain <-rain.vec
   }else{
@@ -146,12 +170,12 @@ for(i in seq_along(date.vec)){
 
 gps.date.met.df <- do.call(rbind,gps.date.ls)
 saveRDS(gps.date.met.df,'cache/met.rds')
-
-
-
-
-
-
+# gps.date.met.df.old <- readRDS('cache/met.rds')
+# 
+# 
+# plot(gps.date.met.df.old$rain,gps.date.met.df$rain)
+# 
+# abline(a=0,b=1)
 
 
 
