@@ -20,6 +20,7 @@ gps.date.df$previous.month <- as.Date(paste0(gps.date.df$Year,'-',
 
 gps.date.df$previous.month <- format(gps.date.df$previous.month,format = '%Y.%m')
 gps.date.df <- gps.date.df[!is.na(gps.date.df$previous.month),]
+# range(gps.date.df$lon)
 
 # get met from chelsa####
 # library(lubridate)
@@ -113,8 +114,28 @@ get.rain.silo.func <- function(lat,lon,yr.mon){
   rain.raster <- raster(t(rain.mon.df),
                        xmn=min(lon.vec), xmx=max(lon.vec), ymn=min(lat.vec), ymx=max(lat.vec))
   met.raster.right <- flip(rain.raster, direction='y')
-
-  value.tar <- extract(x = met.raster.right,y = cbind(lon,lat),method = 'bilinear',small=T)
+  met.raster.right[is.infinite(met.raster.right)] <- NA
+  value.tar <- raster::extract(x = met.raster.right,y = cbind(lon,lat),method = 'bilinear',small=T,na.rm=T)
+  return(value.tar)
+}
+# 
+get.met.silo.func <- function(lat,lon,yr.mon,met.path){
+  # separate yr and mon
+  yr.in <- strsplit(x = yr.mon,split = '[.]')[[1]][1]
+  mon.in <- as.numeric(strsplit(x = yr.mon,split = '[.]')[[1]][2])
+  # get file
+  met.vec <- list.files(met.path,pattern = '.rds',full.names = T,recursive = T)
+  
+  met.nm <-  met.vec[grep(pattern = yr.in,x = met.vec)]
+  
+  met.ls <- readRDS(met.nm)
+  # get the month
+  rain.raster <- met.ls[[mon.in]]
+  rain.raster <- setExtent(rain.raster, c(xmn=132, xmx=150, ymn=-40, ymx=-29), keepres=FALSE, snap=FALSE)
+  rain.raster[is.infinite(rain.raster)] <- NA
+# plot(rain.raster)
+# points(x = lon,y=lat,pch=16)
+  value.tar <- raster::extract(x = rain.raster,y = cbind(lon,lat),method = 'bilinear',small=T,na.rm=T)
   return(value.tar)
 }
 # get the unique dates
@@ -129,13 +150,13 @@ func2apply <- function(x,met.nm,dat){
   return(tmax.vec)
 }
 
-# x <- sapply(date.vec, func2apply,met.nm = 'tmax',dat = gps.date.df[1:10,])
-
-for(i in 193:length(date.vec)#seq_along(date.vec)
+# lopp through all dates#####
+for(i in 1:length(date.vec)#seq_along(date.vec)
     ){
   tmp.df <- gps.date.df[gps.date.df$previous.month == date.vec[i],]
   
-  tmax.vec <- try(get.agcd.met.func(dat = tmp.df,met.nm = 'tmax'))
+  # tmax.vec <- try(get.agcd.met.func(dat = tmp.df,met.nm = 'tmax'))
+  tmax.vec <- try(get.met.silo.func(lat = tmp.df$lat,lon = tmp.df$lon,yr.mon = date.vec[i],met.path = 'data/met/tmax_silo/'))
   if(class(tmax.vec) != 'try-error'){
     tmp.df$tmax <- tmax.vec
   }else{
@@ -148,22 +169,15 @@ for(i in 193:length(date.vec)#seq_along(date.vec)
   }else{
     tmp.df$rain <- NA
   }
-  vph15.vec <- try(get.agcd.met.func(tmp.df,met.nm = 'vph15'))
+  # vph15.vec <- try(get.agcd.met.func(tmp.df,met.nm = 'vph15'))
+  
+  vph15.vec <- try(get.met.silo.func(lat = tmp.df$lat,lon = tmp.df$lon,yr.mon = date.vec[i],met.path = 'data/met/rh_silo/'))
   if(class(vph15.vec) != 'try-error'){
     tmp.df$vph15 <-vph15.vec
   }else{
     tmp.df$vph15 <- NA
   }
-  # rad.vec <- try(get.agcd.met.func(tmp.df,met.nm = 'rad'))
-  # if(class(rad.vec) != 'try-error'){
-  #   tmp.df$rad <-rad.vec
-  # }else{
-  #   tmp.df$rad <- NA
-  # }
-  # tmp.df$tmin <- get.met.coords.ns.func(tmp.df,met.nm = 'tmin')
-  # tmp.df$rad <- get.met.coords.ns.func(tmp.df,met.nm = 'rad')
-  # tmp.df$rain <- get.met.coords.ns.func(tmp.df,met.nm = 'rain')
-  
+
   gps.date.ls[[i]] <- tmp.df
   print(date.vec[i])
 }

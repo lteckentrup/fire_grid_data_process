@@ -6,7 +6,7 @@ test.dat <- input.df[,c('soil.density' , 'ph' , 'clay' , #soil attributes
                         'tmax' , 'rain' , 'vph15', #climate
                         'pet','map',#long term clim
                         'lai.opt')]
-pairs(test.dat,upper.panel = NULL,pch=16,col='grey',cex=0.5)
+# pairs(test.dat,upper.panel = NULL,pch=16,col='grey',cex=0.5)
 # function to fit rf$$$$######
 library(randomForest)
 require(caTools)
@@ -58,15 +58,29 @@ saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
 
 # fit rf models########
 # 1. highets#####
-rf.fit.canopy.h <- fit.rf.func(dat = input.df,
-                               y.nm = 'CNPY_TOP_hight_cm',mtry=5)
+height.df <- input.df
+height.df$CNPY_TOP_hight_cm_log <- log(height.df$CNPY_TOP_hight_cm)
+height.df <- height.df[!is.na(height.df$CNPY_TOP_hight_cm_log),]
+height.df <- height.df[is.finite(height.df$CNPY_TOP_hight_cm_log),]
+
+rf.fit.canopy.h <- fit.rf.func(dat = height.df,
+                               y.nm = 'CNPY_TOP_hight_cm_log',mtry=5)
+
+# rf.fit.canopy.h <- fit.rf.func(dat = input.df,
+#                                y.nm = 'CNPY_TOP_hight_cm',mtry=5)
 # varImpPlot(rf.fit.canopy.h,type=2)
 # hist(input.df$CNPY_TOP_hight_cm)
 # rf.fit.canopy.h.old <- readRDS('cache/rf.fit.canopy.height.rds')
 saveRDS(rf.fit.canopy.h,'cache/rf.fit.canopy.height.rds')
 # 2.
-rf.fit.ns.h <- fit.rf.func(dat = input.df,
-                               y.nm = 'NS_TOP_height_cm',mtry=5)
+
+height.df <- input.df
+height.df$NS_TOP_height_cm_log <- log(height.df$NS_TOP_height_cm)
+height.df <- height.df[!is.na(height.df$NS_TOP_height_cm_log),]
+height.df <- height.df[is.finite(height.df$NS_TOP_height_cm_log),]
+
+rf.fit.ns.h <- fit.rf.func(dat = height.df,
+                               y.nm = 'NS_TOP_height_cm_log',mtry=5)
 
 saveRDS(rf.fit.ns.h,'cache/rf.fit.ns.height.rds')
 # 3. hz score####
@@ -93,7 +107,7 @@ rf.fit.hz.surface <- fit.rf.func(dat = input.df,
 saveRDS(rf.fit.hz.surface,'cache/rf.fit.hz.surface.rds')
 
 
-predict(rf.fit.canopy.h,)
+# predict(rf.fit.canopy.h,)
 
 
 

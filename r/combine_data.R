@@ -36,8 +36,8 @@ get.vp.from.t.func <- function(temperature){
 }
 
 
-hs.soil.wi.met.df$vpd <- get.vp.from.t.func(hs.soil.wi.met.df$tmax) - hs.soil.wi.met.df$vph15/10
-
+hs.soil.wi.met.df$vpd <- get.vp.from.t.func(hs.soil.wi.met.df$tmax) * (1- hs.soil.wi.met.df$vph15/100)
+hs.soil.wi.met.df$vpd[hs.soil.wi.met.df$vpd<0.05] <- 0.05
 library(g1.opt.func)
 opt.out.ls <- list()
 n.days <- 365.25
@@ -52,13 +52,15 @@ for (i in 1:nrow(hs.soil.wi.met.df)) {
   }else{
     opt.out.ls[[i]] <- tmp
   }
-  
+  print(i)
 }
 
 opt.out.df <- do.call(rbind,opt.out.ls)
 hs.soil.wi.met.df$lai.opt <- opt.out.df[,'LAI']
 # plot(hs.soil.wi.met.df$lai.opt)
 saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.lai.rds')
+# lai <- readRDS('cache/hs.soil.topo.met.lai.rds')
+# hs.soil.wi.met.df.fuel.df$lai.opt <- lai$lai.opt$lai.opt
 # lai.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 # hs.soil.wi.met.df$lai.opt <-lai.df$lai.opt
 # add longterm climate######
@@ -73,10 +75,11 @@ map.ra <- raster(t(pet.ls[['map']]),
                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
 tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
-tmp.df$pet <- extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
-tmp.df$map <- extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
+tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
+tmp.df$map <- raster::extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
 # 
 saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
+
 
 
 
