@@ -18,7 +18,7 @@ rf.fit.bark.hz <- readRDS('cache/rf.fit.hz.bark.rds')
 rf.fit.bark.hz$confusion
 rf.fit.surface.hz <- readRDS('cache/rf.fit.hz.surface.rds')
 rf.fit.surface.hz$confusion
-varImpPlot(rf.fit.bark.hz)
+varImpPlot(rf.fit.ns.hz)
 # 
 # plot(rf.fit.bark.hz)
 pred.rf.func <- function(dat,y.nm,fit.in, 
