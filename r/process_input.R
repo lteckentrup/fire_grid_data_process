@@ -12,3 +12,5 @@ input.df$bark_hz <- as.factor(input.df$bark_hz)
 input.df$surface_hz <- as.factor(input.df$surface_hz)
 input.df$elevated_hz <- as.factor(input.df$elevated_hz)
 input.df$fuelType_vicnsw <- as.factor(input.df$fuelType_vicnsw )
+
+names(input.df)[names(input.df)=='vph15'] <- 'rh.min'

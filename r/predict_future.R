@@ -1,61 +1,183 @@
-library(raster)
-#make df for prediction####
-pr.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')
-rh.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')
-tmax.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')
+# read inputs####
+# read topo
+rad.jan <- readRDS('cache/rad_jan_5km.rds')
+rad.jul <- readRDS('cache/rad_jul_5km.rds')
+c.plan.ra <- readRDS('cache/curvature_plan_vic_5km.rds')
+c.small <- readRDS('cache/curvature_profile_vic_5km.rds')
+wi.ra <- readRDS('cache/wi_vic_5km.rds')
+# read soil
+soil.den <- readRDS('cache/density_vic_5km.rds')
+soil.ph <- readRDS('cache/ph_vic_5km.rds')
+soil.clay <- readRDS('cache/clay_vic_5km.rds')
+# read met
+tmax.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')[[1]]
+pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
+rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
 
-
-i=1
-input.future.df <- as.data.frame(pr.df[[i]], xy=TRUE) 
-names(input.future.df) <- c('lon','lat','rain')
-
-
-input.future.df$tmax.k <- raster::extract(x = tmax.df[[i]],
-                                          y = cbind(input.future.df$lon,input.future.df$lat),
-                                          method = 'bilinear',small=T,na.rm=T)
-
-input.future.df$tmax <- input.future.df$tmax.k -272.15
-
-input.future.df$vph15 <- raster::extract(x = rh.df[[i]],
-                                         y = cbind(input.future.df$lon,input.future.df$lat),
-                                         method = 'bilinear',small=T,na.rm=T)
-# soil 
-input.future.df$vph15 <- raster::extract(x = rh.df[[i]],
-                                         y = cbind(input.future.df$lon,input.future.df$lat),
-                                         method = 'bilinear',small=T,na.rm=T)
+tmax.mean.ra <- readRDS('data/met/future/access/rcp45_20452060_annual_tmax.rds')
+pr.mean.ra <- readRDS('data/met/future/access/rcp45_20452060_annual_pr.rds')
+# read lai
+lai.ra <- readRDS('data/met/future/access/lai_jan_5km.rds')
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# library(raster)
+# #make df for prediction####
+# pr.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')
+# rh.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')
+# tmax.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')
+# 
+# # # plot(tmax.df[[1]])
+# # # i=1
+# # rad.small.jan.ra <- crop(rad.jan.ra, extent(pr.df[[1]]))
+# # # rad.small.jan.ra.ag <- aggregate(rad.small.jan.ra)
+# # # plot(as.raster(pr.df[[1]]))
+# # crs(rad.small.jan.ra) <- crs(pr.df[[1]]) <- '+init=epsg:4326'
+# # 
+# # # get rad####
+# # rad.jan.ra <- raster('data/topo/rad/SRADTotalShortwaveSlopingSurf_0115_lzw.tif')
+# # rad.jul.ra <- raster('data/topo/rad/SRADTotalShortwaveSlopingSurf_0715_lzw.tif')
+# # rad.small.jan.ra <- crop(rad.jan.ra, extent(pr.df[[1]]))
+# # rad.small.jul.ra <- crop(rad.jul.ra, extent(pr.df[[1]]))
+# # 
+# # crs(rad.small.jan.ra) <- crs(rad.small.jul.ra)<- crs(pr.df[[1]]) <- '+init=epsg:4326'
+# # rad.small.jan.ra.ag.clim <- projectRaster(from=rad.small.jan.ra,
+# #                                           to=pr.df[[1]], method="bilinear")
+# # 
+# # rad.small.jul.ra.ag.clim <- projectRaster(from=rad.small.jul.ra,
+# #                                           to=pr.df[[1]], method="bilinear")
+# 
+# rad.small.jan.ra.ag.clim <- readRDS('cache/rad_jan_5km.rds')
+# rad.small.jul.ra.ag.clim <- readRDS('cache/rad_jul_5km.rds')
+# 
+# 
+# # get par value####
+# par_fraction <- 0.368
+# 
+# par.ra.5km <- (rad.small.jan.ra.ag.clim +
+#                  rad.small.jul.ra.ag.clim)/2 *par_fraction
+# 
+# 
+# 
+# # plot(par.ra.5km)
+# # get vpd####
+# get.vp.from.t.func <- function(temperature){
+#   # Magnus_pressure = 
+#   0.61094 * exp((17.625 * temperature) / (temperature + 243.04))
+# }
+# 
+# #model####
+# # library("devtools")
+# # install_bitbucket("Jinyan_Jim_Yang/g1.opt.package.git")
+# n.days <- 365.25
+# library(g1.opt.func)
+# vpd.ra.5km <- get.vp.from.t.func((tmax.df[[1]] - 272.15)) * (1- rh.df[[1]]/100)
+# jan.lai.m <- mapply(g1.lai.e.func,
+#                     VPD = matrix(vpd.ra.5km),
+#                     E = matrix(pr.df[[1]])*n.days,
+#                     PAR = matrix(rad.small.jan.ra.ag.clim * par_fraction*n.days), 
+#                     TMAX = matrix(tmax.df[[1]]- 272.15))
+# 
+# vpd.ra.5km.jul <- get.vp.from.t.func((tmax.df[[7]] - 272.15)) * (1- rh.df[[7]]/100)
+# vpd.ra.5km.jul[vpd.ra.5km.jul<0.05] <- 0.05
+# jul.lai.m <- mapply(g1.lai.e.func,
+#                     VPD = matrix(vpd.ra.5km.jul),
+#                     E = matrix(pr.df[[7]]*n.days),
+#                     PAR = matrix(rad.small.jul.ra.ag.clim * par_fraction*n.days), 
+#                     TMAX = matrix(tmax.df[[7]]- 272.15))
+# 
+# convert.fun <- function(lai.opt.vec){
+#   var.vec.jul <- lai.opt.vec#jul.lai.m[2,]
+#   var.m <- matrix(var.vec.jul,
+#                   ncol = ncol(vpd.ra.5km),
+#                   nrow = nrow(vpd.ra.5km),byrow = T)
+#   
+#   # lai.ra <- rasterize(x = ,y = ,var.m)
+#   lai.ra <-raster(var.m)
+#   extent(lai.ra) <- extent(vpd.ra.5km)
+#   plot(lai.ra)
+#   return(lai.ra)
+# }
+# 
+# lai.jan.ra <- convert.fun(lai.opt.vec = jan.lai.m[2,])
+# 
+# saveRDS(lai.jan.ra,'data/met/future/access/lai_jan_5km.rds')
+# lai.jul.ra <- convert.fun(lai.opt.vec = jul.lai.m[2,])
+
+# var.vec.jul <- jul.lai.m[2,]
+# var.m <- matrix(var.vec,
+#                 ncol = ncol(vpd.ra.5km),
+#                 nrow = nrow(vpd.ra.5km),byrow = T)
+# 
+# # lai.ra <- rasterize(x = ,y = ,var.m)
+# lai.ra <-raster(var.m)
+# extent(lai.ra) <- extent(vpd.ra.5km)
+# # plot(lai.ra)
+# # plot(rad.small.jul.ra.ag.clim * par_fraction*n.days)
+# # plot(tmax.df[[1]]- 272.15)
 
 
 
 # predict lai####
-hs.soil.wi.met.df <- readRDS('cache/hs.soil.topo.met.rds')
+# # hs.soil.wi.met.df <- readRDS('cache/hs.soil.topo.met.rds')
+# rad.jan.ra <- raster('data/topo/rad/SRADTotalShortwaveSlopingSurf_0115_lzw.tif')
+# input.future.df$rad.short.jan <- extract(x = rad.jan.ra,
+#                                          y =  cbind(input.future.df$lon,input.future.df$lat),
+#                                          small=T,na.rm=T)
+# # rm(rad.jan.ra)
+# 
+# rad.jul.ra <- raster('data/topo/rad/SRADTotalShortwaveSlopingSurf_0715_lzw.tif')
+# input.future.df$rad.short.jul <- extract(x = rad.jul.ra,
+#                                          y =  cbind(input.future.df$lon,input.future.df$lat),
+#                                          small=T,na.rm=T)
+# rm(rad.jul.ra)
 par_fraction <- 0.368
 # 
 # library("devtools")
 # install_bitbucket("Jinyan_Jim_Yang/g1.opt.package.git")
 
-hs.soil.wi.met.df$PAR <- (hs.soil.wi.met.df$rad.short.jan + hs.soil.wi.met.df$rad.short.jul)/2 *par_fraction
+# input.future.df$PAR <- (input.future.df$rad.short.jan +
+#                           input.future.df$rad.short.jul)/2 *par_fraction
 get.vp.from.t.func <- function(temperature){
   # Magnus_pressure = 
   0.61094 * exp((17.625 * temperature) / (temperature + 243.04))
 }
 
 
-hs.soil.wi.met.df$vpd <- get.vp.from.t.func(hs.soil.wi.met.df$tmax) * (1- hs.soil.wi.met.df$vph15/100)
-hs.soil.wi.met.df$vpd[hs.soil.wi.met.df$vpd<0.05] <- 0.05
+input.future.df$vpd <- get.vp.from.t.func(input.future.df$tmax) * (1- input.future.df$vph15/100)
+input.future.df$vpd[input.future.df$vpd<0.05] <- 0.05
 library(g1.opt.func)
 opt.out.ls <- list()
 n.days <- 365.25
-for (i in 1:nrow(hs.soil.wi.met.df)) {
-  tmp <- try(g1.lai.e.func(VPD = hs.soil.wi.met.df$vpd[i],
-                           E = hs.soil.wi.met.df$rain[i]*n.days,
-                           PAR = hs.soil.wi.met.df$PAR[i]*n.days,
-                           TMAX = hs.soil.wi.met.df$tmax[i],
-                           Ca = 400))
+for (i in 1:nrow(input.future.df)) {
+  tmp <- try(g1.lai.e.func(VPD = input.future.df$vpd[i],
+                           E = input.future.df$rain[i]*n.days,
+                           PAR = input.future.df$PAR[i]*n.days,
+                           TMAX = input.future.df$tmax[i],
+                           # rcp4.5= 2017-2030: 419; 2045-2060:492;2085-2100: 585
+                           # rcp8.5= 2017-2030: 427; 2045-2060:562;2085-2100: 877
+                           Ca = 492))
   if(class(tmp)=='try-error'){
     opt.out.ls[[i]] <- NA
   }else{
@@ -65,4 +187,4 @@ for (i in 1:nrow(hs.soil.wi.met.df)) {
 }
 
 opt.out.df <- do.call(rbind,opt.out.ls)
-hs.soil.wi.met.df$lai.opt <- opt.out.df[,'LAI']
+input.future.df$lai.opt <- opt.out.df[,'LAI']

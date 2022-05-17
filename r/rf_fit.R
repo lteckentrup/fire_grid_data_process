@@ -1,11 +1,11 @@
 # 
 source('r/process_input.R')
 
-test.dat <- input.df[,c('soil.density' , 'ph' , 'clay' , #soil attributes
-                        'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-                        'tmax' , 'rain' , 'vph15', #climate
-                        'pet','map',#long term clim
-                        'lai.opt')]
+# test.dat <- input.df[,c('soil.density' , 'ph' , 'clay' , #soil attributes
+#                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
+#                         'tmax' , 'rain' , 'rh.min', #climate
+#                         'tmax.mean','map',#long term clim
+#                         'lai.opt')]
 # pairs(test.dat,upper.panel = NULL,pch=16,col='grey',cex=0.5)
 # function to fit rf$$$$######
 library(randomForest)
@@ -15,8 +15,8 @@ library(caret)
 fit.rf.func <- function(dat,y.nm,
                         x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-                        'tmax' , 'rain' , 'vph15', #climate
-                        'pet','map',#long term clim 
+                        'tmax' , 'rain' , 'rh.min', #climate
+                        'tmax.mean','map',#long term clim 
                         'lai.opt'),#vegetation,
                         ...){
   formula.use <- as.formula(paste0(y.nm,'~.'))
@@ -49,8 +49,8 @@ rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          y.nm = 'fuelType_vicnsw',
                          x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
                                   'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-                                  'tmax' , 'rain' , 'vph15', #climate
-                                  'pet','map',#long term clim 
+                                  'tmax' , 'rain' , 'rh.min', #climate
+                                  'tmax.mean','map',#long term clim 
                                   'lai.opt'))
 # varImpPlot(rf.fit.ft,type=2)
 # previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
@@ -68,7 +68,7 @@ rf.fit.canopy.h <- fit.rf.func(dat = height.df,
 
 # rf.fit.canopy.h <- fit.rf.func(dat = input.df,
 #                                y.nm = 'CNPY_TOP_hight_cm',mtry=5)
-# varImpPlot(rf.fit.canopy.h,type=2)
+# varImpPlot(rf.fit.canopy.h.old,type=2)
 # hist(input.df$CNPY_TOP_hight_cm)
 # rf.fit.canopy.h.old <- readRDS('cache/rf.fit.canopy.height.rds')
 saveRDS(rf.fit.canopy.h,'cache/rf.fit.canopy.height.rds')
@@ -81,7 +81,7 @@ height.df <- height.df[is.finite(height.df$NS_TOP_height_cm_log),]
 
 rf.fit.ns.h <- fit.rf.func(dat = height.df,
                                y.nm = 'NS_TOP_height_cm_log',mtry=5)
-
+# varImpPlot(rf.fit.ns.h)
 saveRDS(rf.fit.ns.h,'cache/rf.fit.ns.height.rds')
 # 3. hz score####
 rf.fit.hz.elevated <- fit.rf.func(dat = input.df,
@@ -96,6 +96,7 @@ ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
 
 rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
                                   y.nm = 'nearsurface_hz',mtry=5)
+# varImpPlot(rf.fit.hz.ns)
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')
 # 5 
 rf.fit.hz.bark <- fit.rf.func(dat = input.df,

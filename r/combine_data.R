@@ -66,16 +66,21 @@ saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.lai.rds')
 # add longterm climate######
 pet.ls <- readRDS('data/met/pet.gps.rds')
 library(raster)
-pet.ra <- raster(t(pet.ls[['pet']]),
+# pet.ra <- raster(t(pet.ls[['pet']]),
+#                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
+#                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
+
+tmax.ra <- raster(t(readRDS('data/met/temperature.rds')),
                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
-
+plot(tmax.ra)
 map.ra <- raster(t(pet.ls[['map']]),
                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
 tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
+tmp.df$tmax.mean <- raster::extract(tmax.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$map <- raster::extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
 # 
 saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
