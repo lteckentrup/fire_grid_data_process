@@ -83,8 +83,9 @@
 # func####
 library(g1.opt.func)
 library(raster)
-get.lai.func <- function(pr.fn,tmax.fn,rh.fn,out.fn){
-  
+get.lai.func <- function(pr.fn,tmax.fn,rh.fn,out.fn,ca.in){
+  # rcp4.5= 2017-2030: 419; 2045-2060:492;2085-2100: 585
+  # rcp8.5= 2017-2030: 427; 2045-2060:562;2085-2100: 877
   # 
   # use cliamte to predict lai for vic
   # inputs: pr.fn= file name of precipitation,max temperature, relative humidity
@@ -119,7 +120,8 @@ get.lai.func <- function(pr.fn,tmax.fn,rh.fn,out.fn){
                       VPD = matrix(vpd.ra.5km),
                       E = matrix(pr.df[[1]])*n.days,
                       PAR = matrix(rad.jan.ra * par_fraction*n.days), 
-                      TMAX = matrix(tmax.df[[1]]- 272.15))
+                      TMAX = matrix(tmax.df[[1]]- 272.15),
+                      Ca = ca.in)
   
   # vpd.ra.5km.jul <- get.vp.from.t.func((tmax.df[[7]] - 272.15)) * (1- rh.df[[7]]/100)
   # vpd.ra.5km.jul[vpd.ra.5km.jul<0.05] <- 0.05
@@ -151,4 +153,4 @@ get.lai.func <- function(pr.fn,tmax.fn,rh.fn,out.fn){
 get.lai.func(pr.fn = 'data/met/future/access/rcp45_20452060_monthly_pr.rds',
              rh.fn = 'data/met/future/access/rcp45_20452060_monthly_rh.rds',
              tmax.fn= 'data/met/future/access/rcp45_20452060_monthly_tmax.rds',
-             out.fn = 'data/met/future/access/lai_jan_5km.rds')
+             out.fn = 'data/met/future/access/rcp45_20452060_lai_jan_5km.rds',ca.in = 492)

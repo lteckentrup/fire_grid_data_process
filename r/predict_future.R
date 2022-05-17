@@ -1,39 +1,120 @@
-# read inputs####
-# read topo
-rad.jan <- readRDS('cache/rad_jan_5km.rds')
-rad.jul <- readRDS('cache/rad_jul_5km.rds')
-c.plan.ra <- readRDS('cache/curvature_plan_vic_5km.rds')
-c.small <- readRDS('cache/curvature_profile_vic_5km.rds')
-wi.ra <- readRDS('cache/wi_vic_5km.rds')
-# read soil
-soil.den <- readRDS('cache/density_vic_5km.rds')
-soil.ph <- readRDS('cache/ph_vic_5km.rds')
-soil.clay <- readRDS('cache/clay_vic_5km.rds')
-# read met
-tmax.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')[[1]]
-pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
-rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
+source('r/functions_predict.R')
+# devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 
-tmax.mean.ra <- readRDS('data/met/future/access/rcp45_20452060_annual_tmax.rds')
-pr.mean.ra <- readRDS('data/met/future/access/rcp45_20452060_annual_pr.rds')
-# read lai
-lai.ra <- readRDS('data/met/future/access/lai_jan_5km.rds')
+# # read topo
+# rad.jan <- readRDS('cache/rad_jan_5km.rds')
+# rad.jul <- readRDS('cache/rad_jul_5km.rds')
+# c.plan.ra <- readRDS('cache/curvature_plan_vic_5km.rds')
+# c.small <- readRDS('cache/curvature_profile_vic_5km.rds')
+# wi.ra <- readRDS('cache/wi_vic_5km.rds')
+# # read soil
+# soil.den <- readRDS('cache/density_vic_5km.rds')
+# soil.ph <- readRDS('cache/ph_vic_5km.rds')
+# soil.clay <- readRDS('cache/clay_vic_5km.rds')
 
+#function to predict with cmip clim#### 
+predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
+  # # read inputs####
+  # read met
+  # tmax.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')[[1]]
+  # pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
+  # rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
+  # path.nm <-  'data/met/future/access/rcp45_20452060'
+  tmax.ra <- readRDS(paste0(path.nm,'_monthly_tmax.rds'))[[1]]
+  pr.ra <- readRDS(paste0(path.nm,'_monthly_pr.rds'))[[1]]
+  rh.ra <- readRDS(paste0(path.nm,'_monthly_rh.rds'))[[1]]
+  
+  tmax.mean.ra <- readRDS(paste0(path.nm,'_annual_tmax.rds'))
+  pr.mean.ra <- readRDS(paste0(path.nm,'_annual_pr.rds'))
+  # read lai
+  lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
+  model.rf <- readRDS(model.path)#'cache/rf.fit.hz.surface.rds'
+  prob.m <- try(predict.rf.func(model.in = model.rf,
+                            s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                            rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                            wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                            tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                            tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                            lai.opt = matrix(lai.ra),
+                            giveProb = T))
+  
+  rf.m <- predict.rf.func(model.in = model.rf,
+                          s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                          rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                          wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                          tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                          tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                          lai.opt = matrix(lai.ra),giveProb = F)
+  # save prediction
+  var.m <- matrix(as.numeric(rf.m),
+                  ncol = ncol(soil.den),
+                  nrow = nrow(soil.den),byrow = T)
+  
+  
+  score.ra <-raster(var.m)
+  extent(score.ra) <- extent(soil.den)
+  # save prob
+  if(class(prob.m) != 'try-error'){
+    prob.m.m <- matrix(prob.m,
+                       ncol = ncol(soil.den),
+                       nrow = nrow(soil.den),byrow = T)
+    
+    
+    prob.ra <-raster((prob.m.m))
+    extent(prob.ra) <- extent(soil.den)
+  }else{
+    prob.ra <- NA
+  }
+  
+  # plot(prob.ra)
+  
+  saveRDS(list(val = score.ra,
+               prob = prob.ra),paste0(path.nm,out.nm))
+}
 
+# wrap func
+wrap.predic.func <- function(where.is.data){
+  # where.is.data <- 'data/met/future/access/rcp45_20452060'
+  # 1. canopy height
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.canopy.height.rds',
+                       out.nm = '_height_canopy.rds')
+  # 2. ns height
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.ns.height.rds',
+                       out.nm = '_height_ns.rds')
+  # 3. hz ele
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.hs.elevated.rds',
+                       out.nm = '_hz_elevated.rds')
+  
+  # 4. hz bark
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.hz.bark.rds',
+                       out.nm = '_hz_bark.rds')
+  
+  # 5. hz ns
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.hz.ns.rds',
+                       out.nm = '_hz_ns.rds')
+  # 6. hz surface
+  predict.rf.cmip.func(path.nm = where.is.data,
+                       model.path = 'cache/rf.fit.hz.surface.rds',
+                       out.nm = '_hz_surface.rds')
+}
 
+wrap.predic.func('data/met/future/ACCESS1-0/maca_VIC_ACCESS1-0_historical/')
 
+# hs.ele.ls <- readRDS('data/met/future/access/rcp45_20452060_hz_elevated.rds')
+# h.can.ls <- readRDS('data/met/future/access/rcp45_20452060_height_ns.rds')
+# plot(exp(h.can.ls[['val']]))
 
-
-
-
-
-
-
-
-
-
-
-
+# # plot#####
+# brks <- 0.5:5.5
+# plot(hs.ele.ls[['val']],breaks=brks,col=col.df$cityNight[c(1,2,5,4,3)],lab.breaks=0:5)
+# 
+# colours <- colorRampPalette(c("grey","red"))
+# plot(prob.ra,col=colours(20))
 
 
 
