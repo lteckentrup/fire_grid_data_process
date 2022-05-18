@@ -20,14 +20,16 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   # pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
   # rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
   # path.nm <-  'data/met/future/access/rcp45_20452060'
-  tmax.ra <- readRDS(paste0(path.nm,'_monthly_tmax.rds'))[[1]]
-  pr.ra <- readRDS(paste0(path.nm,'_monthly_pr.rds'))[[1]]
-  rh.ra <- readRDS(paste0(path.nm,'_monthly_rh.rds'))[[1]]
   
-  tmax.mean.ra <- readRDS(paste0(path.nm,'_annual_tmax.rds'))
-  pr.mean.ra <- readRDS(paste0(path.nm,'_annual_pr.rds'))
+  tmax.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_tmax.rds',full.names = T))[[1]]
+  pr.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_pr.rds',full.names = T))[[1]]
+  rh.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_rh.rds',full.names = T))[[1]]
+  
+  tmax.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_tmax.rds',full.names = T))
+  pr.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_pr.rds',full.names = T))
   # read lai
-  lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
+  # lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
+  lai.ra <- readRDS(list.files(path = path.nm,pattern = '_lai_jan_5km.rds',full.names = T))
   model.rf <- readRDS(model.path)#'cache/rf.fit.hz.surface.rds'
   prob.m <- try(predict.rf.func(model.in = model.rf,
                             s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
