@@ -103,7 +103,15 @@ wrap.predic.func <- function(where.is.data){
                        out.nm = '_hz_surface.rds')
 }
 
-wrap.predic.func('data/met/future/ACCESS1-0/maca_VIC_ACCESS1-0_historical/')
+met.path.vec <- list.dirs('data/met/future/',recursive = T)
+rcp45.index <- grep('rcp45',met.path.vec)
+rcp85.index <- grep('rcp85',met.path.vec)
+hist.index <- grep('history',met.path.vec)
+fn.vec.chosen <- met.path.vec[c(rcp45.index,rcp85.index,hist.index)]
+# met.mode.fn <- sapply(met.path.vec, function(x)list.dirs(x,recursive = F))
+sapply(fn.vec.chosen,wrap.predic.func)
+
+# wrap.predic.func('data/met/future/ACCESS1-0/maca_VIC_ACCESS1-0_historical/')
 
 # hs.ele.ls <- readRDS('data/met/future/access/rcp45_20452060_hz_elevated.rds')
 # h.can.ls <- readRDS('data/met/future/access/rcp45_20452060_height_ns.rds')

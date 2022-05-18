@@ -149,8 +149,67 @@ get.lai.func <- function(pr.fn,tmax.fn,rh.fn,out.fn,ca.in){
   saveRDS(lai.jan.ra,out.fn)
 }
 
-# do it for different climate model####
-get.lai.func(pr.fn = 'data/met/future/access/rcp45_20452060_monthly_pr.rds',
-             rh.fn = 'data/met/future/access/rcp45_20452060_monthly_rh.rds',
-             tmax.fn= 'data/met/future/access/rcp45_20452060_monthly_tmax.rds',
-             out.fn = 'data/met/future/access/rcp45_20452060_lai_jan_5km.rds',ca.in = 492)
+# # do it for different climate model####
+# get.lai.func(pr.fn = 'data/met/future/access/rcp45_20452060_monthly_pr.rds',
+#              rh.fn = 'data/met/future/access/rcp45_20452060_monthly_rh.rds',
+#              tmax.fn= 'data/met/future/access/rcp45_20452060_monthly_tmax.rds',
+#              out.fn = 'data/met/future/access/rcp45_20452060_lai_jan_5km.rds',ca.in = 492)
+# 
+# rcp4.5 = 2000-2015: 400; 2045-2060:492;2085-2100: 585
+# rcp8.5 = 2000-2015: 400; 2045-2060:562;2085-2100: 877
+
+# 
+wrap.lai.func <- function(path.nm){
+  # met.path.vec <- list.dirs('data/met/future/CSIRO-Mk3-6-0/',recursive = F)
+  met.path.vec <- list.dirs(path.nm,recursive = F)
+  for (i in seq_along(met.path.vec)) {
+    # read the met data within the folder
+    met.files.vec <- list.files(pattern = 'monthly',path = met.path.vec[i],full.names = T)
+    # check what time and rcp the data is in and assing co2
+    if(length(grep('history',met.files.vec[1]))>0){
+      co2.val <- 390
+    }else if(length(grep('rcp45',met.files.vec[1]))>0){
+      
+      if(length(grep('2045',met.files.vec[1]))>0){
+        co2.val <- 492
+      }else{
+        co2.val <- 585
+      }
+      
+    }else{
+      # this is potentially rsiky as all other conditions fall in to rcp8.5
+      if(length(grep('2045',met.files.vec[1]))>0){
+        co2.val <- 562
+      }else{
+        co2.val <- 877
+      }
+    }
+    # read in the rain file name
+    pr.nm <- met.files.vec[grep('_pr.rds',met.files.vec)]
+    # calculated LAI and save
+    get.lai.func(pr.fn = pr.nm,
+                 rh.fn = met.files.vec[grep('_rh.rds',met.files.vec)],
+                 tmax.fn= met.files.vec[grep('_tmax.rds',met.files.vec)],
+                 out.fn = gsub('monthly_pr','lai_jan_5km',pr.nm),
+                 ca.in = co2.val)
+  }
+}
+# get file nm
+folder.vec <- list.dirs('data/met/future/',recursive = F)
+
+sapply(folder.vec,wrap.lai.func)
+
+
+
+
+
+
+
+
+
+
+# his.folder <- met.path.vec[grep(pattern = 'history',x = met.path.vec)]
+
+
+
+

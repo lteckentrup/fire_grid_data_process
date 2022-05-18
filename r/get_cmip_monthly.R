@@ -41,10 +41,11 @@ get.mon.clim.func <- function(fn.in,par.nm,out.nm,yr.in,fun.im ){
 }
 wrap.get.mon.clim.func <- function(model.path){
   # model.path <- 'data/met/future/BNU-ESM/'
-  
+ 
+  # 
   dir.vec <- list.dirs(model.path,recursive = F)
   
-  rcp.file.vec <- list.files(path = dir.vec,
+  rcp.file.vec <- list.files(path = model.path,
                              pattern = '.nc',recursive = T,full.names = T)
   tmp.1 <- rcp.file.vec[grep('_pr',x = rcp.file.vec)]
   tmp.2 <- rcp.file.vec[grep('_rhsmin',x = rcp.file.vec)]
@@ -54,21 +55,24 @@ wrap.get.mon.clim.func <- function(model.path){
   # history
     fn.sub.his <- fn.vec[grep(pattern = 'historical',x = fn.vec)]
     dir.his <- dirname(fn.sub.his[1])
+    dir.create(paste0(model.path,'history/'))
     get.mon.clim.func(fn.in = fn.sub.his[grep(pattern = '_pr',x = fn.sub.his)],
                       par.nm ='pr',
-                      out.nm = paste0(dir.his,'/history_20002015_monthly_pr.rds'),
+                      out.nm = paste0(dir.his,'/history/history_20002015_monthly_pr.rds'),
                       yr.in = 2000:2015,fun.im = mean)
     get.mon.clim.func(fn.in = fn.sub.his[grep(pattern = '_rhsmin',x = fn.sub.his)],
                       par.nm ='rhsmin',
-                      out.nm = paste0(dir.his,'/history_20002015_monthly_rh.rds'),
+                      out.nm = paste0(dir.his,'/history/history_20002015_monthly_rh.rds'),
                       yr.in = 2000:2015,fun.im = mean)
     get.mon.clim.func(fn.in = fn.sub.his[grep(pattern = '_tasmax',x = fn.sub.his)],
                       par.nm ='tasmax',
-                      out.nm = paste0(dir.his,'/history_20002015_monthly_tmax.rds'),
+                      out.nm = paste0(dir.his,'/history/history_20002015_monthly_tmax.rds'),
                       yr.in = 2000:2015,fun.im = mean)
 
    # rcp45 and 85
     get4rcp.func <- function(rcp.in){
+      dir.create(paste0(model.path,rcp.in,'_long/'))
+      dir.create(paste0(model.path,rcp.in,'_mid/'))
       fn.sub.rcp45 <- fn.vec[grep(pattern = rcp.in,x = fn.vec)]
       
       for (rcp.45.i in seq_along(fn.sub.rcp45)) {
@@ -78,12 +82,12 @@ wrap.get.mon.clim.func <- function(model.path){
         if(length(grep(pattern = '2060',x = fn.i))>0){
           print('mid')
           yr.in = 2045:2060
-          second.nm <- paste0(rcp.in,'_20452060')
+          second.nm <- paste0('/',rcp.in,'_mid/',rcp.in,'_20452060')
           
         }else{
           print('long')
           yr.in = 2085:2100
-          second.nm <- paste0(rcp.in,'_20852100')
+          second.nm <- paste0('/',rcp.in,'_long/',rcp.in,'_20852100')
         }
         # 
         if(length(grep(pattern = '_tasmax',x = fn.i))>0){
@@ -112,8 +116,16 @@ wrap.get.mon.clim.func <- function(model.path){
 
 }
 wrap.get.mon.clim.func('data/met/future/BNU-ESM/')
-wrap.get.mon.clim.func('data/met/future/ACCESS1-0/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/ACCESS1-0/')
 
+wrap.get.mon.clim.func(model.path = 'data/met/future/CSIRO-Mk3-6-0/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/GFDL-CM3/')
+
+wrap.get.mon.clim.func(model.path = 'data/met/future/GFDL-ESM2G/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/GFDL-ESM2M/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/inmcm4/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/IPSL-CM5A-LR/')
+wrap.get.mon.clim.func(model.path = 'data/met/future/MRI-CGCM3/')
 
 # use functions to get monthly data###
 # # aceess 

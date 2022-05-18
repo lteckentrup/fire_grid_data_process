@@ -50,14 +50,40 @@ get.annual.clim.func <- function(fn.in,par.nm,out.nm){
 
 
 # use functions to get monthly data###
-# aceess 
-get.annual.clim.func(fn.in = 'data/met/future/access/rcp45_20452060_monthly_pr.rds',
-                  par.nm ='pr',
-                  out.nm = 'data/met/future/access/rcp45_20452060_annual_pr.rds')
+# # aceess 
+# get.annual.clim.func(fn.in = 'data/met/future/access/rcp45_20452060_monthly_pr.rds',
+#                   par.nm ='pr',
+#                   out.nm = 'data/met/future/access/rcp45_20452060_annual_pr.rds')
+# 
+# get.annual.clim.func(fn.in = 'data/met/future/access/rcp45_20452060_monthly_tmax.rds',
+#                      par.nm ='tmax',
+#                      out.nm = 'data/met/future/access/rcp45_20452060_annual_tmax.rds')
 
-get.annual.clim.func(fn.in = 'data/met/future/access/rcp45_20452060_monthly_tmax.rds',
-                     par.nm ='tmax',
-                     out.nm = 'data/met/future/access/rcp45_20452060_annual_tmax.rds')
-
-
+# list met files
+pr.fn.vec <- list.files(pattern = '_monthly_pr.rds',
+                        path = 'data/met/future/',
+                        full.names= T,recursive = T)
+for(i in seq_along(pr.fn.vec)){
+  get.annual.clim.func(fn.in = pr.fn.vec[i],
+                       par.nm ='pr',
+                       out.nm = gsub('monthly','annual',pr.fn.vec[i]))
+}
+# 
+rh.fn.vec <- list.files(pattern = '_monthly_rh.rds',
+                        path = 'data/met/future/',
+                        full.names= T,recursive = T)
+for(i in seq_along(rh.fn.vec)){
+  get.annual.clim.func(fn.in = rh.fn.vec[i],
+                       par.nm ='rh',
+                       out.nm = gsub('monthly','annual',rh.fn.vec[i]))
+}
+# 
+tmax.fn.vec <- list.files(pattern = '_monthly_tmax.rds',
+                          path = 'data/met/future/',
+                          full.names= T,recursive = T)
+for(i in seq_along(tmax.fn.vec)){
+  get.annual.clim.func(fn.in = tmax.fn.vec[i],
+                       par.nm ='tmax',
+                       out.nm = gsub('monthly','annual',tmax.fn.vec[i]))
+}
 
