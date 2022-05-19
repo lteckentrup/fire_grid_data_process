@@ -11,7 +11,7 @@ soil.den <- readRDS('cache/density_vic_5km.rds')
 soil.ph <- readRDS('cache/ph_vic_5km.rds')
 soil.clay <- readRDS('cache/clay_vic_5km.rds')
 
-# function to predict
+# function to predict#####
 predict.rf.func <- function(model.in,
                             s.den,s.ph,s.clay,
                             rad.jan,rad.jul,wi,c.profile,c.plan,
@@ -37,3 +37,112 @@ predict.rf.func <- function(model.in,
   
   # }
 }
+
+x.df <- predict(object = model.in,newdata=df,type='vote')
+x.prob.df <- predict(object = model.in,newdata=df,type='prob')
+#function to predict with cmip clim#### 
+predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
+  # # read inputs####
+  # read met
+  # tmax.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')[[1]]
+  # pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
+  # rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
+  # path.nm <-  'data/met/future/access/rcp45_20452060'
+  
+  tmax.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_tmax.rds',full.names = T))[[1]]
+  pr.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_pr.rds',full.names = T))[[1]]
+  rh.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_rh.rds',full.names = T))[[1]]
+  
+  tmax.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_tmax.rds',full.names = T))
+  pr.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_pr.rds',full.names = T))
+  # read lai
+  # lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
+  lai.ra <- readRDS(list.files(path = path.nm,pattern = '_lai_jan_5km.rds',full.names = T))
+  model.rf <- readRDS(model.path)#'cache/rf.fit.hz.surface.rds'
+  model.rf <- readRDS('cache/rf.fit.hs.elevated.rds')#
+  
+  # get predicted probbility
+  prob.m <- try(predict.rf.func(model.in = model.rf,
+                                s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                                rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                                wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                                tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                                tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                                lai.opt = matrix(lai.ra),
+                                giveProb = T))
+  # get predicted value
+  rf.m <- predict.rf.func(model.in = model.rf,
+                          s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                          rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                          wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                          tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                          tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                          lai.opt = matrix(lai.ra),giveProb = F)
+  # save prediction
+  var.m <- matrix(as.numeric(rf.m),
+                  ncol = ncol(soil.den),
+                  nrow = nrow(soil.den),byrow = T)
+  
+  
+  score.ra <-raster(var.m)
+  extent(score.ra) <- extent(soil.den)
+  # save prob
+  if(class(prob.m) != 'try-error'){
+    
+    layer.nm <- colnames(prob.m)
+    prob.m.ls <- list()
+    for (lay.i in seq_along(layer.nm)) {
+      prob.m.i <- matrix(prob.m[,layer.nm[lay.i]],
+                         ncol = ncol(soil.den),
+                         nrow = nrow(soil.den),byrow = T)
+      prob.ra <-raster((prob.m.i))
+      extent(prob.ra) <- extent(soil.den)
+      plot(prob.ra)
+      
+      prob.m.ls[[lay.i]] <- prob.ra
+      
+    }
+    names(prob.m.ls) <- layer.nm
+    
+  }else{
+    prob.ra <- NA
+  }
+  
+  # plot(prob.ra)
+  
+  
+  saveRDS(list(val = score.ra,
+               prob = prob.m.ls),paste0(path.nm,'/',out.nm))
+}
+# wrap func####
+wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
+  # where.is.data <- 'data/met/future/access/rcp45_20452060'
+  # 1. canopy height
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.canopy.height.rds',
+         out.nm = '_height_canopy.rds')
+  # readRDS(model.path)
+  # 2. ns height
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.ns.height.rds',
+         out.nm = '_height_ns.rds')
+  # 3. hz ele
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.hs.elevated.rds',
+         out.nm = '_hz_elevated.rds')
+  
+  # 4. hz bark
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.hz.bark.rds',
+         out.nm = '_hz_bark.rds')
+  
+  # 5. hz ns
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.hz.ns.rds',
+         out.nm = '_hz_ns.rds')
+  # 6. hz surface
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.hz.surface.rds',
+         out.nm = '_hz_surface.rds')
+}
+
