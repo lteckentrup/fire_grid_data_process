@@ -24,7 +24,7 @@ fit.rf.func <- function(dat,y.nm,
   test.df <- dat[,c(y.nm,#target
                     x.nm)]
   
-  
+  # names(dat)
   # test.df <- test.df[!is.na(test.df[,y.nm]),]
   # test.df <- test.df#[1000:5000,]
   set.seed(1935)

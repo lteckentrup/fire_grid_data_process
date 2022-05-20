@@ -58,8 +58,9 @@ for (i in 1:nrow(hs.soil.wi.met.df)) {
 opt.out.df <- do.call(rbind,opt.out.ls)
 hs.soil.wi.met.df$lai.opt <- opt.out.df[,'LAI']
 # plot(hs.soil.wi.met.df$lai.opt)
-saveRDS(hs.soil.wi.met.df,'cache/hs.soil.topo.met.lai.rds')
+saveRDS(hs.soil.wi.met.df.fuel.df,'cache/hs.soil.topo.met.lai.rds')
 # lai <- readRDS('cache/hs.soil.topo.met.lai.rds')
+# hs.soil.wi.met.df.fuel.df$lai.opt <- lai$lai.opt
 # hs.soil.wi.met.df.fuel.df$lai.opt <- lai$lai.opt$lai.opt
 # lai.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 # hs.soil.wi.met.df$lai.opt <-lai.df$lai.opt
@@ -73,13 +74,13 @@ library(raster)
 tmax.ra <- raster(t(readRDS('data/met/temperature.rds')),
                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
-plot(tmax.ra)
+# plot(tmax.ra)
 map.ra <- raster(t(pet.ls[['map']]),
                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
 tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
-tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
+# tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$tmax.mean <- raster::extract(tmax.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$map <- raster::extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
 # 

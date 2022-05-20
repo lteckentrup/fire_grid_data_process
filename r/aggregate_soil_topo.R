@@ -1,6 +1,6 @@
 library(raster)
 #read future climate###
-pr.df <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')
+pr.df <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_pr.rds')
 
 # func to reporoject soil and topo to climate resolotion
 proj.func <- function(ra.in,ra.target,fn.out,ifSave=TRUE){
@@ -39,46 +39,50 @@ saveRDS(rad.small.jan.ra.ag.clim,'cache/rad_jan_5km.rds')
 saveRDS(rad.small.jul.ra.ag.clim,'cache/rad_jul_5km.rds')
 
 #get c plan#########
-fn.vec <- list.files(path = 'data/topo/curvature_plan/PlanCurvature_1_arc-second_resolution/tiles/',
-                 pattern = 'w001001.adf',recursive = T,full.names = T)
+# fn.vec <- list.files(path = 'data/topo/curvature_plan/PlanCurvature_1_arc-second_resolution/tiles/',
+#                  pattern = 'w001001.adf',recursive = T,full.names = T)
+c.plan.fn <- ('data/topo/curvature_plan/90m/plan_curvature_3s.tif')
+c_plan.ra <- projectRaster(from=raster(c.plan.fn),
+                                          to=pr.df[[1]], method="bilinear")
+# tmp.ra.ls <- list()
+# for (ra.i in seq_along(fn.vec)) {
+#   c_plan.ra <- raster(fn.vec[ra.i])
+#   tmp.ra.check <- try(proj.func(ra.in = c_plan.ra,
+#                                                 ra.target = pr.df[[1]],
+#                                                 fn.out = '',ifSave = F))
+#   
+#   if(class(tmp.ra.check) != 'try-error'){
+#     tmp.ra.ls[[length(tmp.ra.ls)+1]] <- tmp.ra.check
+#   }
+#   
+# }
+# # 
+# c.plan.ra <- do.call(merge,tmp.ra.ls)
 
-
-tmp.ra.ls <- list()
-for (ra.i in seq_along(fn.vec)) {
-  c_plan.ra <- raster(fn.vec[ra.i])
-  tmp.ra.check <- try(proj.func(ra.in = c_plan.ra,
-                                                ra.target = pr.df[[1]],
-                                                fn.out = '',ifSave = F))
-  
-  if(class(tmp.ra.check) != 'try-error'){
-    tmp.ra.ls[[length(tmp.ra.ls)+1]] <- tmp.ra.check
-  }
-  
-}
-# 
-c.plan.ra <- do.call(merge,tmp.ra.ls)
-
-saveRDS(c.plan.ra,'cache/curvature_plan_vic_5km.rds')
+saveRDS(c_plan.ra,'cache/curvature_plan_vic_5km.rds')
 
 #get wi#########
-fn.vec <- list.files(path = 'data/topo/wetness_index/',
-                     pattern = 'w001001.adf',recursive = T,full.names = T)
-
-
-tmp.ra.ls <- list()
-for (ra.i in seq_along(fn.vec)) {
-  c_plan.ra <- raster(fn.vec[ra.i])
-  tmp.ra.check <- try(proj.func(ra.in = c_plan.ra,
-                                ra.target = pr.df[[1]],
-                                fn.out = '',ifSave = F))
-  
-  if(class(tmp.ra.check) != 'try-error'){
-    tmp.ra.ls[[length(tmp.ra.ls)+1]] <- tmp.ra.check
-  }
-  
-}
+# fn.vec <- list.files(path = 'data/topo/wetness_index/',
+#                      pattern = 'w001001.adf',recursive = T,full.names = T)
 # 
-wi.ra <- do.call(merge,tmp.ra.ls)
+# 
+# tmp.ra.ls <- list()
+# for (ra.i in seq_along(fn.vec)) {
+#   c_plan.ra <- raster(fn.vec[ra.i])
+#   tmp.ra.check <- try(proj.func(ra.in = c_plan.ra,
+#                                 ra.target = pr.df[[1]],
+#                                 fn.out = '',ifSave = F))
+#   
+#   if(class(tmp.ra.check) != 'try-error'){
+#     tmp.ra.ls[[length(tmp.ra.ls)+1]] <- tmp.ra.check
+#   }
+#   
+# }
+# # 
+# wi.ra <- do.call(merge,tmp.ra.ls)
+wi.fn <- ('data/topo/wetness_index/90m/twi_3s.tif')
+wi.ra <- projectRaster(from=raster(wi.fn),
+                           to=pr.df[[1]], method="bilinear")
 
 saveRDS(wi.ra,'cache/wi_vic_5km.rds')
 

@@ -57,3 +57,31 @@ plot(exp(c.h[['val']]),breaks=brks,col=colours(length(brks)-1))
 # colours <- colorRampPalette(c("grey","red"))
 # plot(prob.ra,col=colours(20))
 
+# $##########
+
+hs.ele.ls <- readRDS('data/met/future/BNU-ESM/rcp45_mid/_hz_elevated.rds')
+
+brk.vec <- seq(0,6,by=1)
+col.func <- colorRampPalette(c('darkseagreen','red'))
+plot(hs.ele.ls[['val']],breaks = brk.vec,col = col.func(6), 
+     axis.args=list(at=head(brk.vec, -1)+0.5,
+                    labels=head(brk.vec, -1),
+                    cex.axis=0.6),
+     main = 'Elevated Fuel RCP4.5 2045-2060',colNA="lightskyblue")
+# mask upper corner
+# upper.corner <- crop(hs.ele.ls[['val']],extent(c(146,150, -36.1, -33)))
+# upper.corner[is.na(upper.corner)] <- 1
+# plot(upper.corner,add=T,col='white',ann=F,axes=F,legend=FALSE)
+
+library(oz)
+vic(add=T,lwd=1,col='black')
+
+
+
+
+# 
+raster.new = stack(hs.ele.ls[["prob"]])
+
+plot(max(raster.new))
+plot(hs.ele.ls[['val']])
+
