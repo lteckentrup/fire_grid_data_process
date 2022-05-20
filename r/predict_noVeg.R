@@ -45,22 +45,48 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
   
   score.ra <-raster(var.m)
   extent(score.ra) <- extent(soil.den)
-  # save prob
-  if(class(prob.m) != 'try-error'){
-    prob.m.m <- matrix(prob.m,
-                       ncol = ncol(soil.den),
-                       nrow = nrow(soil.den),byrow = T)
+
+#   rf.m.future.lai <- predict.rf.func(model.in = model.rf,
+#                                      s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+#                                      rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+#                                      wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+#                                      tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+#                                      tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+#                                      lai.opt = matrix(readRDS('data/met/future/ACCESS1-0/rcp45_long/rcp45_20852100_lai_jan_5km.rds')),
+#                                      giveProb = F)
+#   
+#   var.m.future.lai <- matrix(as.numeric(rf.m.future.lai),
+#                              ncol = ncol(soil.den),
+#                              nrow = nrow(soil.den),byrow = T)
+# 
+# 
+# score.ra.future <-raster(var.m.future.lai)
+# extent(score.ra.future) <- extent(soil.den)
+#   
+# plot(score.ra-score.ra.future)
+  
+  # save prob 
+if(class(prob.m) != 'try-error'){
     
+    layer.nm <- colnames(prob.m)
+    prob.m.ls <- list()
+    for (lay.i in seq_along(layer.nm)) {
+      prob.m.i <- matrix(prob.m[,layer.nm[lay.i]],
+                         ncol = ncol(soil.den),
+                         nrow = nrow(soil.den),byrow = T)
+      prob.ra <-raster((prob.m.i))
+      extent(prob.ra) <- extent(soil.den)
+      # plot(prob.ra)
+      
+      prob.m.ls[[lay.i]] <- prob.ra
+      
+    }
+    names(prob.m.ls) <- layer.nm
     
-    prob.ra <-raster((prob.m.m))
-    extent(prob.ra) <- extent(soil.den)
   }else{
     prob.ra <- NA
   }
-  
-  # plot(prob.ra)
-  
-  
+
   saveRDS(list(val = score.ra,
                prob = prob.ra),paste0(path.nm,'/','noVeg',out.nm))
 }

@@ -38,8 +38,8 @@ predict.rf.func <- function(model.in,
   # }
 }
 
-x.df <- predict(object = model.in,newdata=df,type='vote')
-x.prob.df <- predict(object = model.in,newdata=df,type='prob')
+# x.df <- predict(object = model.in,newdata=df,type='vote')
+# x.prob.df <- predict(object = model.in,newdata=df,type='prob')
 #function to predict with cmip clim#### 
 predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   # # read inputs####
@@ -59,7 +59,7 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   # lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
   lai.ra <- readRDS(list.files(path = path.nm,pattern = '_lai_jan_5km.rds',full.names = T))
   model.rf <- readRDS(model.path)#'cache/rf.fit.hz.surface.rds'
-  model.rf <- readRDS('cache/rf.fit.hs.elevated.rds')#
+  # model.rf <- readRDS('cache/rf.fit.hs.elevated.rds')#
   
   # get predicted probbility
   prob.m <- try(predict.rf.func(model.in = model.rf,
@@ -97,7 +97,7 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
                          nrow = nrow(soil.den),byrow = T)
       prob.ra <-raster((prob.m.i))
       extent(prob.ra) <- extent(soil.den)
-      plot(prob.ra)
+      # plot(prob.ra)
       
       prob.m.ls[[lay.i]] <- prob.ra
       
@@ -105,11 +105,8 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
     names(prob.m.ls) <- layer.nm
     
   }else{
-    prob.ra <- NA
+    prob.m.ls <- NA
   }
-  
-  # plot(prob.ra)
-  
   
   saveRDS(list(val = score.ra,
                prob = prob.m.ls),paste0(path.nm,'/',out.nm))

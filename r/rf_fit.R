@@ -1,6 +1,7 @@
 # 
 source('r/process_input.R')
-
+# summary(lm(elevated_hz~lai.opt,data = input.df))
+# input.df$elevated_hz <- as.numeric(as.character(input.df$elevated_hz))
 # test.dat <- input.df[,c('soil.density' , 'ph' , 'clay' , #soil attributes
 #                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
 #                         'tmax' , 'rain' , 'rh.min', #climate
