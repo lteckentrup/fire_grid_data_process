@@ -1,0 +1,7 @@
+"Variable","x1","x2","x3","x4","x5"
+"Canopy height","PH","MAP","Mean Tmax","Minimum RH","Tmax"
+"Near surface height","PH","MAP","Mean Tmax","Minimum RH","Tmax"
+"Elevated hazard score","Solar radiation (Jan)","Minimum RH","Precipitation","Tmax","Soil bulk density"
+"Near surface hazard score","Minimum RH","Precipitation","Tmax","Solar radiation (Jan)","Soil bulk density"
+"Bark hazard score","Precipitation","Minimum RH","Tmax","MAP","optimal LAI"
+"Surface hazard score","Precipitation","Minimum RH","Tmax","MAP","optimal LAI"
