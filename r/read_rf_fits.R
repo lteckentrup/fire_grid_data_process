@@ -52,7 +52,7 @@ import.df[import.df == 'tmax'] <- 'Tmax'
 import.df[import.df == 'rain'] <- 'Precipitation'
 import.df[import.df == 'rad.short.jan'] <- 'Solar radiation (Jan)'
 import.df[import.df == 'soil.density'] <- 'Soil bulk density'
-import.df[import.df == 'lai.opt'] <- 'optimal LAI'
+import.df[import.df == 'lai.opt'] <- 'Optimal LAI'
 
 write.csv(import.df,'cache/importance.csv',row.names=F)
 
