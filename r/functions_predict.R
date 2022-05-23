@@ -44,10 +44,10 @@ predict.rf.func <- function(model.in,
 predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   # # read inputs####
   # read met
-  # tmax.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_tmax.rds')[[1]]
-  # pr.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_pr.rds')[[1]]
-  # rh.ra <- readRDS('data/met/future/access/rcp45_20452060_monthly_rh.rds')[[1]]
-  # path.nm <-  'data/met/future/access/rcp45_20452060'
+  # tmax.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_tmax.rds')[[1]]
+  # pr.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_pr.rds')[[1]]
+  # rh.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_rh.rds')[[1]]
+  # path.nm <-  'data/met/future/ACCESS1-0/rcp45_mid/'
   
   tmax.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_tmax.rds',full.names = T))[[1]]
   pr.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_pr.rds',full.names = T))[[1]]
@@ -78,8 +78,9 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
                           tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
                           lai.opt = matrix(lai.ra),giveProb = F)
+  
   # save prediction
-  var.m <- matrix(as.numeric(rf.m),
+  var.m <- matrix(as.numeric(as.character(rf.m)),
                   ncol = ncol(soil.den),
                   nrow = nrow(soil.den),byrow = T)
   

@@ -43,7 +43,7 @@ fit.rf.func <- function(dat,y.nm,
 }
 # fuel type#####
 tmp.ft.df <- input.df[!is.na(input.df$fuelType_vicnsw),]
-
+unique(tmp.ft.df$VICSANSW.TYPE_NAME)
 tmp.ft.df <- tmp.ft.df[tmp.ft.df$fuelType_vicnsw %in% names(which(table(tmp.ft.df$fuelType_vicnsw)>=100)),]
 tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$fuelType_vicnsw)
 rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,

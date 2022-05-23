@@ -38,7 +38,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                           tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
                           lai.opt = matrix(lai.ra),giveProb = F)
   # save prediction
-  var.m <- matrix(as.numeric(rf.m),
+  var.m <- matrix(as.numeric(as.character(rf.m)),
                   ncol = ncol(soil.den),
                   nrow = nrow(soil.den),byrow = T)
   
