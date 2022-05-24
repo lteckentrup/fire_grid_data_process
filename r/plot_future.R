@@ -137,21 +137,21 @@ plot.map.func <- function(pred.fn,out.title,add.Borad=FALSE,plot.height=FALSE){
                 library(oz)
                 vic(add=T,lwd=1,col='black',coast = F)
         }
-     
+        
         dev.off()
         # 
-    if(!plot.height){
-            png(out.prob.fn,width = 500,height = 500*0.77)
-            raster.new = stack(hs.ele.ls[["prob"]])
-            
-            brk.vec <- seq(0.2,.6,by=0.1)
-            col.func <- colorRampPalette(c('grey80','black'))
-            
-            plot(max(raster.new),
-                 breaks = brk.vec,col = col.func(4),
-                 main = 'Probability',colNA="lightskyblue")
-            dev.off()
-    }
+        if(!plot.height){
+                png(out.prob.fn,width = 500,height = 500*0.77)
+                raster.new = stack(hs.ele.ls[["prob"]])
+                
+                brk.vec <- seq(0.2,.6,by=0.1)
+                col.func <- colorRampPalette(c('grey80','black'))
+                
+                plot(max(raster.new),
+                     breaks = brk.vec,col = col.func(4),
+                     main = 'Probability',colNA="lightskyblue")
+                dev.off()
+        }
 }
 
 # get file list
