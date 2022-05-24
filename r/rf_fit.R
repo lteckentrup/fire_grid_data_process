@@ -1,18 +1,10 @@
 # 
-source('r/process_input.R')
-# summary(lm(elevated_hz~lai.opt,data = input.df))
-# input.df$elevated_hz <- as.numeric(as.character(input.df$elevated_hz))
-# test.dat <- input.df[,c('soil.density' , 'ph' , 'clay' , #soil attributes
-#                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-#                         'tmax' , 'rain' , 'rh.min', #climate
-#                         'tmax.mean','map',#long term clim
-#                         'lai.opt')]
-# pairs(test.dat,upper.panel = NULL,pch=16,col='grey',cex=0.5)
-# function to fit rf$$$$######
 library(randomForest)
 require(caTools)
 library(caret)
-# library(e1071)
+source('r/process_input.R')
+
+# function to fit rf$$$$######
 fit.rf.func <- function(dat,y.nm,
                         x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
@@ -20,25 +12,19 @@ fit.rf.func <- function(dat,y.nm,
                         'tmax.mean','map',#long term clim 
                         'lai.opt'),#vegetation,
                         ...){
+  # set fomular
   formula.use <- as.formula(paste0(y.nm,'~.'))
   test.df <- dat[,c(y.nm,#target
                     x.nm)]
-  
-  # names(dat)
-  # test.df <- test.df[!is.na(test.df[,y.nm]),]
-  # test.df <- test.df#[1000:5000,]
+  # separate training and validting
   set.seed(1935)
   train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
   TrainSet <- test.df[train,]
-  # ValidSet <- test.df[-train,]
-  # 
-  
+  # fit model 
   model.hieght <- randomForest(formula.use,
                                data = TrainSet, importance = TRUE,na.action=na.omit,
                                ...)
-  # varImpPlot(model.hieght)
-  # summary(TrainSet)
-  
+
   return(model.hieght)
 }
 # fuel type#####
