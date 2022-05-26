@@ -16,3 +16,13 @@ har.score.df.type <- merge(har.score.df,atrribute.df,all.x =T,
 
 # har.score.df.type <- har.score.df.type[,c('coords.x1', 'coords.x2','VICSANSW.TYPE_NAME')]
 saveRDS(har.score.df.type,'cache/fuelType.rds')
+# 
+ft.fq.df <- (table(as.vector(evc.df)))
+ft.vec <- as.vector(evc.df)
+ft.fq.df <- aggregate(data.frame(count = ft.vec), list(value = ft.vec), length)
+rm(ft.vec)
+
+ft.fq.nm.df <- merge(atrribute.df,ft.fq.df,by.x = 'VICSANSW.FUEL_TYPE',by.y ='value'  )
+
+write.csv(ft.fq.nm.df,'fuelTypeCount.csv',row.names = F)
+

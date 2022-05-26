@@ -6,7 +6,7 @@ library(raster)
 source('r/process_input.R')
 # # read fits
 rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
-# varImpPlot(rf.fit.canopy.h)
+varImpPlot(rf.fit.canopy.h,type=1)
 rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
 # varImpPlot(rf.fit.ns.h)
 # 
@@ -18,7 +18,11 @@ rf.fit.bark.hz <- readRDS('cache/rf.fit.hz.bark.rds')
 # rf.fit.bark.hz$confusion
 rf.fit.surface.hz <- readRDS('cache/rf.fit.hz.surface.rds')
 # rf.fit.surface.hz$confusion
+varImpPlot(rf.fit.surface.hz,type=2)
 
+# rf.fit.surface.hz <- readRDS('cache/rf.fit.fuelType.rds')
+# # rf.fit.surface.hz$confusion
+# varImpPlot(rf.fit.surface.hz,type=2)
 
 # record important drivers#####
 get.import.order.func <- function(fit.nm){

@@ -6,10 +6,10 @@ source('r/process_input.R')
 
 # function to fit rf$$$$######
 fit.rf.func <- function(dat,y.nm,
-                        x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
+                        x.nm = c('soil.density' ,  'clay' ,#'ph' , #soil attributes
                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                         'tmax' , 'rain' , 'rh.min', #climate
-                        'tmax.mean','map',#long term clim 
+                        'tmax.mean','map','pr.seaonality',#long term clim 
                         'lai.opt'),#vegetation,
                         ...){
   # set fomular
@@ -20,7 +20,7 @@ fit.rf.func <- function(dat,y.nm,
   set.seed(1935)
   train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
   TrainSet <- test.df[train,]
-  # fit model 
+  # fit 
   model.hieght <- randomForest(formula.use,
                                data = TrainSet, importance = TRUE,na.action=na.omit,
                                ...)
@@ -37,11 +37,11 @@ rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
                                   'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                                   'tmax' , 'rain' , 'rh.min', #climate
-                                  'tmax.mean','map',#long term clim 
+                                  'tmax.mean','map','pr.seaonality',#long term clim 
                                   'lai.opt'))
-# varImpPlot(rf.fit.ft,type=2)
-# previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
-saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
+varImpPlot(rf.fit.ft,type=1)
+previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
+# saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
 
 # fit rf models########
 # 1. highets#####
@@ -72,9 +72,10 @@ rf.fit.ns.h <- fit.rf.func(dat = height.df,
 saveRDS(rf.fit.ns.h,'cache/rf.fit.ns.height.rds')
 # 3. hz score####
 rf.fit.hz.elevated <- fit.rf.func(dat = input.df,
-                           y.nm = 'elevated_hz',mtry=5)
-# varImpPlot(rf.fit.hz.elevated)
+                                  y.nm = 'elevated_hz',mtry=5)
+varImpPlot(rf.fit.hz.elevated)
 # rf.fit.hz.elevated.old <- readRDS('cache/rf.fit.hs.elevated.rds')
+# varImpPlot(rf.fit.hz.elevated.old)
 saveRDS(rf.fit.hz.elevated,'cache/rf.fit.hs.elevated.rds')
 # 4. 
 input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- 'NA'
@@ -82,7 +83,7 @@ ns.df <- input.df[!is.na(input.df$nearsurface_hz),]
 ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
 
 rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
-                                  y.nm = 'nearsurface_hz',mtry=5)
+                            y.nm = 'nearsurface_hz',mtry=5)
 # varImpPlot(rf.fit.hz.ns)
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')
 # 5 

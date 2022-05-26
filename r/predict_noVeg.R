@@ -10,7 +10,26 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
   
   tmax.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_tmax.rds',full.names = T))
   pr.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_pr.rds',full.names = T))
+  # read proper rainfall seasonality
+  is.his <- grep(x = path.nm,pattern = 'history')
+  is.45.mid <- grep(x = path.nm,pattern = 'rcp45_mid')
+  is.45.long <- grep(x = path.nm,pattern = 'rcp45_long')
+  is.85.mid <- grep(x = path.nm,pattern = 'rcp85_mid')
+  is.85.long <- grep(x = path.nm,pattern = 'rcp85_long')
   
+  if(length(is.his)>0){
+    pr.season.ra <- readRDS('cache/pr_seaonality_history.rds')
+  }else if(length(is.45.mid)>0){
+    pr.season.ra <- readRDS('cache/pr_seaonality_rcp45_mid.rds')
+  }else if(length(is.45.long)>0){
+    pr.season.ra <- readRDS('cache/pr_seaonality_rcp45_long.rds')
+  }else if(length(is.85.long)>0){
+    pr.season.ra <- readRDS('cache/pr_seaonality_rcp85_long.rds')
+  }else if(length(is.85.mid)>0){
+    pr.season.ra <- readRDS('cache/pr_seaonality_rcp85_mid.rds')
+  }else{
+    stop('did not find rainfall seasonality for the RCP')
+  }
   # read lai
   lai.fn.vec <- list.files(path = dirname(path.nm),
                            pattern = '_lai_jan_5km.rds',
@@ -26,7 +45,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                                 rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                                 wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                                 tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
-                                tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                                tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
                                 lai.opt = matrix(lai.ra),
                                 giveProb = T))
   # get predicted value
@@ -35,7 +54,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                           rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                           wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
-                          tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),
+                          tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
                           lai.opt = matrix(lai.ra),giveProb = F)
   # save prediction
   var.m <- matrix(as.numeric(as.character(rf.m)),

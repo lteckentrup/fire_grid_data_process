@@ -4,6 +4,7 @@ hs.soil.df <- readRDS('cache/hazardScoreWithSoil.rds')
 wi.df <- readRDS('cache/wetness_curvature_ByGPs.rds')
 fuelType.df <- readRDS('cache/fuelType.rds')
 
+
 hs.soil.wi.df <- merge(hs.soil.df,wi.df,all.x=T)
 hs.soil.wi.met.df<- merge(hs.soil.wi.df,met.df,all.x=T)
 hs.soil.wi.met.df.fuel.df <-  merge(hs.soil.wi.met.df,fuelType.df,all.x=T)
@@ -83,14 +84,20 @@ tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 # tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$tmax.mean <- raster::extract(tmax.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$map <- raster::extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
+# get rainfall seaonality
+pr.seaon.ra <- readRDS('cache/pr_seaonality_silo.rds')
+
+tmp.df$pr.seaonality <- raster::extract(pr.seaon.ra,
+                                        cbind(tmp.df$lon,tmp.df$lat))
 # 
 saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
 
+# 
+# tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 
 
 
-
-
+# 
 
 
 

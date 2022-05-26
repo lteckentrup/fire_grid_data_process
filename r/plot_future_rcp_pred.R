@@ -34,6 +34,7 @@ read.future.all.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
   rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
   
   rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){
+   
     x <- readRDS(fn.in)
     return(x[['val']])
   })
@@ -244,10 +245,8 @@ wrap.plot.rcp.height.func <- function(var.in.nm,
     ra.mode.his <- calc(hz.ele.his, fun=mean,na.rm=T)
     
     target.ra<- ra.mode.his
-    # brk.vec <- brk.in   
-    # at.val <- head(brk.vec, -1)+0.5
     
-    
+    # 
     col.func <- colorRampPalette(c('darkseagreen','red'))
     
     if(cellStats(exp(target.ra), max)>25){
