@@ -21,7 +21,7 @@ predict.rf.func <- function(model.in,
                             giveProb){
   # model.in = readRDS('cache/rf.fit.hz.surface.rds')
   # make a df
-  df <- data.frame(soil.density = s.den,ph = s.ph,clay = s.clay,
+  df <- data.frame(soil.density = s.den,clay = s.clay,
                    rad.short.jan = rad.jan, rad.short.jul = rad.jul,
                    wi = wi,curvature_profile = c.profile,curvature_plan=c.plan,
                    tmax = tmax,rain = rain,rh.min = rh.min,
@@ -85,7 +85,8 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   
   # get predicted probbility
   prob.m <- try(predict.rf.func(model.in = model.rf,
-                                s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                                s.den=matrix(soil.den),#s.ph=matrix(soil.ph),
+                                s.clay= matrix(soil.clay),
                                 rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                                 wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                                 tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
@@ -94,7 +95,8 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
                                 giveProb = T))
   # get predicted value
   rf.m <- predict.rf.func(model.in = model.rf,
-                          s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                          s.den=matrix(soil.den),#s.ph=matrix(soil.ph),
+                          s.clay= matrix(soil.clay),
                           rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                           wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),

@@ -30,7 +30,12 @@ read.future.all.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
   rcp45_mid.fn <- list.files(path = 'data/met/future/',
                              pattern = var.in.nm,recursive = T,full.names = T)
   
-  rcp45_mid.fn <- rcp45_mid.fn[!rcp45_mid.fn %in% grep(exclude.nm, rcp45_mid.fn)]
+  if(exclude.nm =='noVeg'){
+    rcp45_mid.fn <- rcp45_mid.fn[!rcp45_mid.fn %in% 
+                                   rcp45_mid.fn[grep(exclude.nm, rcp45_mid.fn)]]
+  }else{
+    rcp45_mid.fn <- rcp45_mid.fn[grep(exclude.nm, rcp45_mid.fn)]
+  }
   rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
   
   rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){

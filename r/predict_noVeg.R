@@ -41,7 +41,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
   
   # get predicted probbility
   prob.m <- try(predict.rf.func(model.in = model.rf,
-                                s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                                s.den=matrix(soil.den),s.clay= matrix(soil.clay),
                                 rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                                 wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                                 tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
@@ -50,7 +50,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                                 giveProb = T))
   # get predicted value
   rf.m <- predict.rf.func(model.in = model.rf,
-                          s.den=matrix(soil.den),s.ph=matrix(soil.ph),s.clay= matrix(soil.clay),
+                          s.den=matrix(soil.den),s.clay= matrix(soil.clay),
                           rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
                           wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
@@ -103,11 +103,11 @@ if(class(prob.m) != 'try-error'){
     names(prob.m.ls) <- layer.nm
     
   }else{
-    prob.ra <- NA
+    prob.m.ls <- NA
   }
 
   saveRDS(list(val = score.ra,
-               prob = prob.ra),paste0(path.nm,'/','noVeg',out.nm))
+               prob = prob.m.ls),paste0(path.nm,'/','noVeg',out.nm))
 }
 # 
 met.path.vec <- list.dirs('data/met/future/',recursive = T)
