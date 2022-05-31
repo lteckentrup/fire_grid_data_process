@@ -5,6 +5,7 @@ library(raster)
 # 
 source('r/process_input.R')
 # # read fits
+rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
 rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
 varImpPlot(rf.fit.canopy.h,type=1)
 rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
@@ -19,6 +20,15 @@ rf.fit.bark.hz <- readRDS('cache/rf.fit.hz.bark.rds')
 rf.fit.surface.hz <- readRDS('cache/rf.fit.hz.surface.rds')
 # rf.fit.surface.hz$confusion
 varImpPlot(rf.fit.surface.hz,type=2)
+# # check evaluation####
+# plot.evaluation.func <- function(model.nm,var.nm){
+#   # 
+#   # model.nm <- 'cache/rf.fit.hz.bark.rds'
+#   rf.fit.bark.hz <- readRDS(model.nm)
+#   predic.hs.bark <- pred.rf.func(dat = input.df,fit.in = rf.fit.bark.hz,y.nm = var.nm)
+#   return(predic.hs.bark)
+# } 
+# evaluation.ft <- plot.evaluation.func(model.nm = 'cache/rf.fit.hz.ns.rds',var.nm = 'fuelType_vicnsw' )
 
 # rf.fit.surface.hz <- readRDS('cache/rf.fit.fuelType.rds')
 # # rf.fit.surface.hz$confusion
@@ -35,20 +45,22 @@ get.import.order.func <- function(fit.nm){
 # 
 import.df <- data.frame(Variable = NA,
                         x1 = NA,x2 = NA,x3=NA,x4 = NA,x5=NA)
-import.df[1,] <- c('Canopy height',
+import.df[1,] <- c('Fuel type',
+                   get.import.order.func(rf.fit.ft))
+import.df[2,] <- c('Canopy height',
                    get.import.order.func(rf.fit.canopy.h))
-import.df[2,] <- c('Near surface height',
+import.df[3,] <- c('Near surface height',
                    get.import.order.func(rf.fit.ns.h))
-import.df[3,] <- c('Elevated HS',
+import.df[4,] <- c('Elevated HS',
                    get.import.order.func(rf.fit.elevated.hz))
-import.df[4,] <- c('Near surface HS',
+import.df[5,] <- c('Near surface HS',
                    get.import.order.func(rf.fit.ns.hz))
-import.df[5,] <- c('Bark HS',
+import.df[6,] <- c('Bark HS',
                    get.import.order.func(rf.fit.bark.hz))
-import.df[6,] <- c('Surface HS',
+import.df[7,] <- c('Surface HS',
                    get.import.order.func(rf.fit.surface.hz))
 
-import.df[import.df == 'ph'] <- 'PH'
+import.df[import.df == 'pr.seaonality'] <- 'Rainfall seaonality'
 import.df[import.df == 'map'] <- 'MAP'
 import.df[import.df == 'tmax.mean'] <- 'Mean Tmax'
 import.df[import.df == 'rh.min'] <- 'Minimum RH'
@@ -93,10 +105,10 @@ write.csv(import.df,'cache/importance.csv',row.names=F)
 
 #function for plot fiting####
 pred.rf.func <- function(dat,y.nm,fit.in, 
-                         x.nm = c('soil.density' , 'ph' , 'clay' , #soil attributes
+                         x.nm = c('soil.density'  , 'clay' , #soil attributes
                                   'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                                   'tmax' , 'rain' , 'rh.min', #climate
-                                  'tmax.mean','map',#long term clim 
+                                  'tmax.mean','map','pr.seaonality',#long term clim 
                                   'lai.opt'),#vegetation,,#vegetation,
                          ...){
   formula.use <- as.formula(paste0(y.nm,'~.'))
