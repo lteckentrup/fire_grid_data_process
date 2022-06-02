@@ -53,10 +53,12 @@ library(maps)
 # plot maps
 # show map with Latitude 200 as center
 pdf('FH.location.pdf',width = 8,height = 8*20/25)
-maps::map('world', xlim = c(130, 155),ylim=c(-45,-25))
+maps::map('world', xlim = c(130, 155),ylim=c(-40,-30))
 # add axes
 maps::map.axes()
-points(x = coords.repro.df$coords.x1,y=coords.repro.df$coords.x2,pch=16,cex=0.5,col='red')
+library(oz)
+vic(coast = F,add=T)
+points(x = coords.repro.df$lon,y=coords.repro.df$lat,pch=16,cex=0.5,col='red')
 dev.off()
 
 # now check how to get a score#####

@@ -138,7 +138,7 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
 }
 # wrap func####
 wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
-  # where.is.data <- 'data/met/future/access/rcp45_20452060'
+  # # where.is.data <- 'data/met/future/access/rcp45_20452060'
   # 1. canopy height
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.canopy.height.rds',
@@ -152,12 +152,12 @@ wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hs.elevated.rds',
          out.nm = '_hz_elevated.rds')
-  
+
   # 4. hz bark
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hz.bark.rds',
          out.nm = '_hz_bark.rds')
-  
+
   # 5. hz ns
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hz.ns.rds',
@@ -166,5 +166,9 @@ wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hz.surface.rds',
          out.nm = '_hz_surface.rds')
+  # 7. ft surface
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.fuelType.rds',
+         out.nm = '_fuelType.rds')
 }
 
