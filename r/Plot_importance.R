@@ -1,3 +1,16 @@
+rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
+rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
+varImpPlot(rf.fit.canopy.h,type=1)
+rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
+# varImpPlot(rf.fit.ns.h)
+# 
+# model.path <- ('cache/rf.fit.hz.bark.rds')
+rf.fit.ns.hz <- readRDS('cache/rf.fit.hz.ns.rds')
+rf.fit.elevated.hz <- readRDS('cache/rf.fit.hs.elevated.rds')
+# rf.fit.elevated.hz$confusion
+rf.fit.bark.hz <- readRDS('cache/rf.fit.hz.bark.rds')
+# rf.fit.bark.hz$confusion
+rf.fit.surface.hz <- readRDS('cache/rf.fit.hz.surface.rds')
 
 get.import.order.func <- function(fit.nm){
   x <- as.data.frame(fit.nm$importance)
@@ -29,9 +42,9 @@ plot.importance.func <- function(rf.fit.ft,
   x[x == 'wi'] <- 'Wetness index'
   x[x == 'clay'] <- '% clay'
   # plot
-  varImpPlot(rf.fit.ft,main = '',pch=16,labels  = x[,1],type=1)
+  varImpPlot(rf.fit.ft,main = '',pch=16,labels  = rev(x[,1]),type=1)
   legend('topleft',legend = l.out.1,bty='n')
-  varImpPlot(rf.fit.ft,main = '',pch=16,labels  = x[,2],type=2)
+  varImpPlot(rf.fit.ft,main = '',pch=16,labels  = rev(x[,2]),type=2)
   legend('topleft',legend = l.out.2,bty='n')
 }
 
