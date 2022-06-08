@@ -29,7 +29,7 @@ pr.rcp45.mid <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
                                   future_s =  'rcp45_mid',
                                   exclude.nm = '')
 mean.ra.45.mid <- calc(pr.rcp45.mid, fun = mean)
-plot(mean.ra.2 - mean.ra.hist)
+# plot(mean.ra.2 - mean.ra.hist)
 # 
 pr.rcp45.long <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
                                    future_s =  'rcp45_long',
@@ -86,4 +86,30 @@ plot((mean.ra.85.long-mean.ra.hist),main = ' RCP8.5 (2085-2100) - Current',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
 library(oz)
 vic(add=T,col='grey',lwd=3)
+dev.off()
+
+# plot only the end of century#######
+png('figures/future_LAI.png',width = 850,height = 300)
+par(mfrow=c(1,2),mar=c(3,3,1,5))
+
+# a
+mean.ra.hist <- mask(mean.ra.hist, shape.vic)
+break.vec <- seq(0,3,by=0.5)
+
+plot(mean.ra.hist,
+     breaks = break.vec,
+     col=rev(topo.colors(length(break.vec)-1)),
+     box=FALSE,bty='n')
+
+legend('topleft',legend = '(g) LAI-current',bty='n')
+# b
+break.vec <- seq(0,1.2,by=0.2)
+mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
+
+plot((mean.ra.85.long-mean.ra.hist),main = '',
+     breaks = break.vec,
+     col=rev(hcl.colors(length(break.vec)-1)),
+     box=FALSE,bty='n')
+
+legend('topleft',legend = '(h) LAI-2100 RCP8.5',bty='n')
 dev.off()

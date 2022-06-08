@@ -47,7 +47,7 @@ pr.rcp85.long <- read.climate.func(var.in.nm = 'monthly_pr.rds',
 mean.ra.85.long<- calc(pr.rcp85.long, fun = mean)
 # plot((mean.ra.85.long - mean.ra.hist))
 # 
-
+#######
 pdf('figures/future_rainfall_jan.pdf',width = 8,height = 7)
 
 # 
@@ -85,4 +85,32 @@ plot((mean.ra.85.long-mean.ra.hist)*30,main = ' RCP8.5 (2085-2100) - Current',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
 library(oz)
 vic(add=T,col='grey',lwd=3)
+dev.off()
+
+# plot only the end of century#######
+png('figures/future_rain.png',width = 800,height = 300)
+par(mfrow=c(1,2),mar=c(3,3,1,5))
+
+# a
+mean.ra.hist <- mask(mean.ra.hist, shape.vic)
+break.vec <- seq(10,130,by=20)
+
+plot(mean.ra.hist*30,
+     breaks = break.vec,
+     col=(topo.colors(length(break.vec)-1)),
+     box=FALSE,bty='n',
+     xaxt='n')
+
+legend('topleft',legend = '(c) Rainfall-current',bty='n')
+# b
+break.vec <- seq(-20,40,by=10)
+mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
+
+plot((mean.ra.85.long-mean.ra.hist)*30,main = '',
+     breaks = break.vec,
+     col=c('red','coral','grey','lightskyblue','skyblue','navy'),
+     box=FALSE,bty='n',
+     xaxt='n')
+
+legend('topleft',legend = '(d) Rainfall-2100 RCP8.5',bty='n')
 dev.off()

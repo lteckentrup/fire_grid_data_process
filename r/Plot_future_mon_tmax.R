@@ -52,38 +52,68 @@ mean.ra.85.long<- calc(pr.rcp85.long, fun = mean)
 pdf('figures/future_mon_tmax.pdf',width = 8,height = 7)
 
 # 
+mean.ra.hist <- mask(mean.ra.hist, shape.vic)
 break.vec <- seq(10,35,by=5)
 library(raster)
 plot(mean.ra.hist-275.25,main = ' Current',breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-library(oz)
-vic(add=T,col='grey',lwd=3)
 
 # 
+mean.ra.45.mid <- mask(mean.ra.45.mid, shape.vic)
 break.vec <- seq(0,2,by=0.5)
 library(raster)
 plot((mean.ra.45.mid-mean.ra.hist),main = ' RCP4.5 (2045-2060) - Current',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-library(oz)
-vic(add=T,col='grey',lwd=3)
+# library(oz)
+# vic(add=T,col='grey',lwd=3)
 # 
 # break.vec <- seq(20,160,by=20)
+mean.ra.45.long <- mask(mean.ra.45.long, shape.vic)
 library(raster)
 plot((mean.ra.45.long-mean.ra.hist),main = ' RCP4.5 (2085-2100) - Current',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-library(oz)
-vic(add=T,col='grey',lwd=3)
+# library(oz)
+# vic(add=T,col='grey',lwd=3)
 # 
 # break.vec <- seq(20,160,by=20)
+mean.ra.85.mid <- mask(mean.ra.85.mid, shape.vic)
 library(raster)
 plot((mean.ra.85.mid-mean.ra.hist),main = ' RCP8.5 (2045-2060) - Current',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-library(oz)
-vic(add=T,col='grey',lwd=3)
+# library(oz)
+# vic(add=T,col='grey',lwd=3)
 # 
-# break.vec <- seq(20,160,by=20)
+break.vec <- seq(2,4,by=0.5)
+mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
 library(raster)
-plot((mean.ra.85.long-mean.ra.hist),main = ' RCP8.5 (2085-2100) - Current',
+plot((mean.ra.85.long-mean.ra.hist),main = ' ',
      breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-library(oz)
-vic(add=T,col='grey',lwd=3)
+# library(oz)
+# vic(add=T,col='grey',lwd=3)
+dev.off()
+# plot only the end of century#######
+png('figures/future_tmax.png',width = 800,height = 300)
+par(mfrow=c(1,2),mar=c(3,3,1,5))
+
+# a
+mean.ra.hist <- mask(mean.ra.hist, shape.vic)
+break.vec <- seq(10,35,by=5)
+
+plot(mean.ra.hist-275.25,
+     breaks = break.vec,
+     col=(topo.colors(length(break.vec)-1)),
+     box=FALSE,bty='n',
+     xaxt='n')
+
+legend('topleft',legend = '(a)-Temperature current',bty='n')
+# b
+break.vec <- seq(2,4,by=0.5)
+mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
+
+plot((mean.ra.85.long-mean.ra.hist),main = '',
+     breaks = break.vec,
+     col=(heat.colors(length(break.vec)-1)),
+     box=FALSE,bty='n',
+     xaxt='n')
+
+legend('topleft',legend = '(b)-Temperature 2100 RCP8.5',bty='n')
 dev.off()
