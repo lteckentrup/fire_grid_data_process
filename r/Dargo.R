@@ -245,7 +245,45 @@ ft.lut.sub <- ft.lut[ft.lut$fuelType_vicnsw %in% 3005:3009,]
 ft.lut.sub <- ft.lut.sub[order(ft.lut.sub$fuelType_vicnsw),]
 # 
 fuelType.pred <-readRDS('cache/fineScale/ACCESS1-0/history/fuelType.rds') 
+# curretn fuel type####
+evc.df <- raster('data/EVC_fuelType/evc/VICSANSW161.tif')
+put.ft.no.to.sense.func <- function(ra.in,ft.df){
+  # ft.no.in.ra <- unique(ra.in)
+  for (i in seq_along(ft.df$ft.no)) {
+    ra.in[ra.in==ft.df$ft.no[i]] <- ft.df$ft.new.num[i]
+  }
+  return(ra.in)
+}
+ft.no.vec <- atrribute.df$VICSANSW.FUEL_TYPE#read.csv('cache/fuelType_LUT.csv')$fuelType_vicnsw
+ft.df <- data.frame(ft.no = ft.no.vec,
+                    ft.new.num = seq_along(ft.no.vec),
+                    nsmes = atrribute.df$VICSANSW.TYPE_NAME)
+# 
+crs(fuelType.pred[['val']]) <- '+init=epsg:4326'
+evc.ra.vic <- projectRaster(from = evc.df,
+                            to = fuelType.pred[['val']],
+                            method = 'ngb')
+# get rid of none present types
+ft.df.sub <- ft.df[ft.df$ft.no %in% unique(evc.ra.vic), ]
+ft.df.sub$ft.new.num <- seq_along(ft.df.sub$ft.no)
+evc.ra.vic <- put.ft.no.to.sense.func(evc.ra.vic,ft.df.sub)
 
+png('figures/dargo.fuelType.real.png',height = 1000,width = 600)
+par(mfrow=c(2,1))
+par(mar=c(3,3,1,1))
+plot(evc.ra.vic,breaks=0.5:(nrow(ft.df.sub)+0.5),col=hcl.colors(10),
+     # axis.args=list(at=3005:3009,
+     #                labels=ft.lut.sub$VICSANSW.TYPE_NAME,
+     #                line = -3),
+     # legend.args=list(text='', side = 4, line = 1),legend.width=1,
+     legend = F,
+     bty="n", box=FALSE)
+# par(xpd = TRUE)
+plot(0,col='white',ann=F,axes=F)
+legend('top', legend = ft.df.sub$nsmes, 
+       fill = hcl.colors(10), 
+       cex = 1, inset = 0,ncol = 2,bty='n')
+dev.off()
 # plot out####
 pdf('figures/dargo.fuelType.pdf',height = 8,width = 7.5)
 par(mar=c(2,2,5,1))

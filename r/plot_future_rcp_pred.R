@@ -128,6 +128,15 @@ ft.no.vec <- atrribute.df$VICSANSW.FUEL_TYPE#read.csv('cache/fuelType_LUT.csv')$
 ft.df <- data.frame(ft.no = ft.no.vec,
                     ft.new.num = seq_along(ft.no.vec),
                     nsmes = atrribute.df$VICSANSW.TYPE_NAME)
+# # 
+# crs(hz.ft.hist.mod) <- '+init=epsg:4326'
+# evc.ra.vic <- projectRaster(from = evc.df,to = hz.ft.hist.mod,method = 'ngb')
+# evc.ra.vic <- crop(evc.ra.vic, extent(shape.vic))
+# evc.ra.vic <- mask(evc.df, shape.vic)
+# evc.ra.vic[evc.ra.vic<3000] <- NA
+# evc.ra.vic <- put.ft.no.to.sense.func(evc.ra.vic)
+# plot(evc.ra.vic)
+# unique(evc.ra.vic)
 # function to change levels
 put.ft.no.to.sense.func <- function(ra.in){
   # ft.no.in.ra <- unique(ra.in)
@@ -136,6 +145,7 @@ put.ft.no.to.sense.func <- function(ra.in){
   }
   return(ra.in)
 }
+
 # read history ft
 hz.ft.hist <- read.future.all.func(var.in.nm = 'fuelType',
                                          future_s = 'history',
@@ -196,7 +206,7 @@ diff.ra <- ra.rcp45_mid.mode.his - hz.ft.hist.mod
 diff.ra[diff.ra !=0] <- 1
 diff.ra <- mask(diff.ra, shape.vic)
 par(mar=c(3,3,1,3))
-plot(diff.ra,breaks = c(-0.5,0.5,1.5),col=c('grey','red'),
+plot(diff.ra,breaks = c(-0.5,0.5,1.5),col=c('grey70','black'),
      axis.args=list(at=0:1,
                     labels=c('No','Yes'),
                     cex.axis=1),bty='n',box=F)
