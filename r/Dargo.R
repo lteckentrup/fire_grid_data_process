@@ -285,9 +285,16 @@ legend('top', legend = ft.df.sub$nsmes,
        cex = 1, inset = 0,ncol = 2,bty='n')
 dev.off()
 # plot out####
-pdf('figures/dargo.fuelType.pdf',height = 8,width = 7.5)
+pdf('figures/dargo.fuelType.pdf',height = 8*0.8,width = 7.5*0.8)
 par(mar=c(2,2,5,1))
 plot(fuelType.pred[['val']],breaks=3004.5:3009.5,col=col.df$iris,
+     # axis.args=list(at=3005:3009,
+     #                labels=ft.lut.sub$VICSANSW.TYPE_NAME,
+     #                line = -3),
+     # legend.args=list(text='', side = 4, line = 1),legend.width=1,
+     legend = F,
+     bty="n", box=FALSE)
+plot(wi.ra,col=gray.colors(12,alpha=0.3),add=T,
      # axis.args=list(at=3005:3009,
      #                labels=ft.lut.sub$VICSANSW.TYPE_NAME,
      #                line = -3),

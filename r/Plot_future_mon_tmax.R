@@ -104,7 +104,7 @@ plot(mean.ra.hist-275.25,
      box=FALSE,bty='n',
      xaxt='n')
 
-legend('topleft',legend = '(a)-Temperature current',bty='n')
+legend('topleft',legend = '(a) Temperature-current',bty='n')
 # b
 break.vec <- seq(2,4,by=0.5)
 mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
@@ -115,5 +115,5 @@ plot((mean.ra.85.long-mean.ra.hist),main = '',
      box=FALSE,bty='n',
      xaxt='n')
 
-legend('topleft',legend = '(b)-Temperature 2100 RCP8.5',bty='n')
+legend('topleft',legend = '(b) Temperature-2100 RCP8.5',bty='n')
 dev.off()

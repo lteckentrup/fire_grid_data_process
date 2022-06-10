@@ -89,7 +89,7 @@ vic(add=T,col='grey',lwd=3)
 dev.off()
 
 # plot only the end of century#######
-png('figures/future_LAI.png',width = 850,height = 300)
+png('figures/future_LAI.png',width = 800,height = 300)
 par(mfrow=c(1,2),mar=c(3,3,1,5))
 
 # a
