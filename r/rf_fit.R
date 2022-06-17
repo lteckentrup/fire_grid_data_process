@@ -29,23 +29,24 @@ fit.rf.func <- function(dat,y.nm,
 }
 # fuel type#####
 tmp.ft.df <- input.df[!is.na(input.df$fuelType_vicnsw),]
-# unique(tmp.ft.df$VICSANSW.TYPE_NAME)
+
 tmp.ft.df <- tmp.ft.df[tmp.ft.df$fuelType_vicnsw %in% names(which(table(tmp.ft.df$fuelType_vicnsw)>=100)),]
 tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$fuelType_vicnsw)
+# unique(tmp.ft.df$VICSANSW.TYPE_NAME)
 rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          y.nm = 'fuelType_vicnsw',
                          x.nm = c('soil.density', 'clay' , #soil attributes
                                   'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-                                  'tmax' , 'rain' , 'rh.min', #climate
-                                  'tmax.mean','map','pr.seaonality',#long term clim 
-                                  'lai.opt'))
-varImpPlot(rf.fit.ft,type=1)
+                                  # 'tmax' , 'rain' , 'rh.min', #climate
+                                  'tmax.mean','map','pr.seaonality'#long term clim 
+                                  ))
+varImpPlot(rf.fit.ft)
 # previous.fit <- readRDS('cache/rf.fit.fuelType.rds')
 saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.rds')
-# save  lut for fuel type
-tmp.sub.df <- tmp.ft.df[!duplicated(tmp.ft.df$VICSANSW.TYPE_NAME),]
-tmp.sub.df <- tmp.sub.df[,c('fuelType_vicnsw','VICSANSW.TYPE_NAME')]
-write.csv(tmp.sub.df,'cache/fuelType_LUT.csv',row.names = F)
+# # save  lut for fuel type
+# tmp.sub.df <- tmp.ft.df[!duplicated(tmp.ft.df$VICSANSW.TYPE_NAME),]
+# tmp.sub.df <- tmp.sub.df[,c('fuelType_vicnsw','VICSANSW.TYPE_NAME')]
+# write.csv(tmp.sub.df,'cache/fuelType_LUT.csv',row.names = F)
 # fit rf models########
 # 1. highets#####
 height.df <- input.df

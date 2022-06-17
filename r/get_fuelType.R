@@ -16,7 +16,9 @@ har.score.df.type <- merge(har.score.df,atrribute.df,all.x =T,
 
 # har.score.df.type <- har.score.df.type[,c('coords.x1', 'coords.x2','VICSANSW.TYPE_NAME')]
 saveRDS(har.score.df.type,'cache/fuelType.rds')
-# 
+# har.score.df.type <- readRDS('cache/fuelType.rds')
+# unique(as.character(har.score.df.type$VICSANSW.TYPE_NAME))
+# #####
 ft.fq.df <- (table(as.vector(evc.df)))
 ft.vec <- as.vector(evc.df)
 ft.fq.df <- aggregate(data.frame(count = ft.vec), list(value = ft.vec), length)
@@ -25,4 +27,22 @@ rm(ft.vec)
 ft.fq.nm.df <- merge(atrribute.df,ft.fq.df,by.x = 'VICSANSW.FUEL_TYPE',by.y ='value'  )
 
 write.csv(ft.fq.nm.df,'fuelTypeCount.csv',row.names = F)
+
+######
+# #read chosen#######
+# #current issue is fuel type and EVD are not one to one matched
+# har.score.df.type <- readRDS('cache/fuelType.rds')
+# # 
+# evc.ft.evd.df <- read.csv('evc_evd_fuelType.LUT.csv')
+# evd.chosen.df <- read.csv('EVD_chosen.csv')
+# 
+# ft.evd.df <- evc.ft.evd.df[evc.ft.evd.df$EVD %in% evd.chosen.df$EDV_chosen,]
+# ft.evd.df <- ft.evd.df[,c('EVD', 'FUEL_TYPE','fuelName')]
+# ft.evd.df <- ft.evd.df[!duplicated(ft.evd.df),]
+# 
+# # 
+# har.score.df.type.evd <- merge(har.score.df.type,
+#                                ft.evd.df,
+#                                by.x = 'fuelType_vicnsw',
+#                                by.y  = 'FUEL_TYPE',all.x=T)
 

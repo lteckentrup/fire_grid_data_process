@@ -7,6 +7,7 @@
 # vic(add=T,lwd=1,col='black',coast = F)
 
 source('r/functions_plot.R')
+source('r/get_vic_shape.R')
 ######
 pdf('figures/hz_ele_rcp.pdf',width = 5.5*5,height = 3.7*2)
 par(mar=c(2,2,1,6))
@@ -162,7 +163,7 @@ hz.ele.rcp45_mid <- read.future.all.func(var.in.nm = 'fuelType',
 ra.rcp45_mid.mode.his <- calc(hz.ele.rcp45_mid, fun=Mode.func)
 
 ra.rcp45_mid.mode.his <- put.ft.no.to.sense.func(ra.rcp45_mid.mode.his)
-# make plotof fuel type ####
+# make plot of fuel type ####
 png('figures/fuelType_pred.png',width = 600,height = 550)
 par(mar=c(3,3,1,1),mfrow=c(2,2),xpd=T)
 # plot history ft

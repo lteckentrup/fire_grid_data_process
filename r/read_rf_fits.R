@@ -6,6 +6,7 @@ library(raster)
 source('r/process_input.R')
 # # read fits
 rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
+# varImpPlot(rf.fit.ft)
 rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
 varImpPlot(rf.fit.canopy.h,type=1)
 rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
