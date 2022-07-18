@@ -1,8 +1,8 @@
+########
 ftLUT.df <- read.csv('FT2Group_lut.csv')
 length(unique(ftLUT.df$Fuel_Type))
 unique(ftLUT.df$GROUPNAME)
 unique(ftLUT.df$SUBGROUPNA)
-\
 
 evd.df <- read.csv('BioEVCEVD_VitalAtt_fh01_20120116.csv')
 unique(evd.df$evd)
@@ -43,5 +43,7 @@ evc.ft.evd.df <- evc.ft.evd.df[,c("evc_no","commonname","evc_fullname","EVCNAME"
                                   "evd","FUEL_TYPE","fuelName")]
 names(evc.ft.evd.df) <- c("evc_no","commonname","EVCNAME_1","EVCNAME_2","EVD","FUEL_TYPE","fuelName")
 write.csv(evc.ft.evd.df,'evc_evd_fuelType.LUT.csv',row.names = F)
+
+
 
 

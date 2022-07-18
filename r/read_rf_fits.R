@@ -8,7 +8,7 @@ source('r/process_input.R')
 rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
 # varImpPlot(rf.fit.ft)
 rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
-varImpPlot(rf.fit.canopy.h,type=1)
+varImpPlot(rf.fit.canopy.h)
 rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
 # varImpPlot(rf.fit.ns.h)
 # 

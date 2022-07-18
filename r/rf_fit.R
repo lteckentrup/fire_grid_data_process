@@ -10,7 +10,7 @@ fit.rf.func <- function(dat,y.nm,
                         'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                         'tmax' , 'rain' , 'rh.min', #climate
                         'tmax.mean','map','pr.seaonality',#long term clim 
-                        'lai.opt'),#vegetation,
+                        'lai.opt.mean'),#vegetation,
                         ...){
   # set fomular
   formula.use <- as.formula(paste0(y.nm,'~.'))
@@ -90,6 +90,8 @@ rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
                             y.nm = 'nearsurface_hz',mtry=5)
 # varImpPlot(rf.fit.hz.ns)
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')
+# rf.fit.hz.ns.old <- readRDS('cache/rf.fit.hz.ns.rds')
+# varImpPlot(rf.fit.hz.ns.old)
 # 5 
 rf.fit.hz.bark <- fit.rf.func(dat = input.df,
                             y.nm = 'bark_hz',mtry=5)

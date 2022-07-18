@@ -71,6 +71,9 @@ library(raster)
 # pet.ra <- raster(t(pet.ls[['pet']]),
 #                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
 #                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
+vpd.ra <- raster(t(readRDS('data/met/vpd.rds')),
+                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
+                  ymn=min(pet.ls[['lat']]), ymx=max(pet.ls[['lat']]))
 
 tmax.ra <- raster(t(readRDS('data/met/temperature.rds')),
                  xmn=min(pet.ls[['lon']]), xmx=max(pet.ls[['lon']]), 
@@ -84,6 +87,7 @@ tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
 # tmp.df$pet <- raster::extract(pet.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$tmax.mean <- raster::extract(tmax.ra,cbind(tmp.df$lon,tmp.df$lat))
 tmp.df$map <- raster::extract(map.ra,cbind(tmp.df$lon,tmp.df$lat))
+tmp.df$vpd.mean <- raster::extract(vpd.ra,cbind(tmp.df$lon,tmp.df$lat))
 # get rainfall seaonality
 pr.seaon.ra <- readRDS('cache/pr_seaonality_silo.rds')
 
@@ -92,13 +96,45 @@ tmp.df$pr.seaonality <- raster::extract(pr.seaon.ra,
 # 
 saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
 
+#####get lai for long term clim
+# predict lai####
+tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
+par_fraction <- 0.368
 # 
-# tmp.df <- readRDS('cache/hs.soil.topo.met.lai.rds')
+# library("devtools")
+# install_bitbucket("Jinyan_Jim_Yang/g1.opt.package.git")
+
+tmp.df$PAR <- (tmp.df$rad.short.jan + tmp.df$rad.short.jul)/2 *par_fraction
+get.vp.from.t.func <- function(temperature){
+  # Magnus_pressure = 
+  0.61094 * exp((17.625 * temperature) / (temperature + 243.04))
+}
 
 
+tmp.df$vpd <- tmp.df$vpd.mean
+tmp.df$vpd[tmp.df$vpd<0.05] <- 0.05
+library(g1.opt.func)
+opt.out.ls <- list()
+n.days <- 365.25
+for (i in 1:nrow(hs.soil.wi.met.df)) {
+  tmp <- try(g1.lai.e.func(VPD = tmp.df$vpd[i],
+                           E = tmp.df$map[i],
+                           PAR = tmp.df$PAR[i]*n.days,
+                           TMAX = tmp.df$tmax[i],
+                           Ca = 400))
+  if(class(tmp)=='try-error'){
+    opt.out.ls[[i]] <- NA
+  }else{
+    opt.out.ls[[i]] <- tmp
+  }
+  print(i)
+}
 
+opt.out.df <- do.call(rbind,opt.out.ls)
+tmp.df$lai.opt.mean <- opt.out.df[,'LAI']
+saveRDS(tmp.df,'cache/hs.soil.topo.met.lai.rds')
 # 
-
+# plot(lai.opt~lai.opt.mean,data = tmp.df)
 
 
 
