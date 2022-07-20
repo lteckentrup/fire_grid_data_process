@@ -14,3 +14,10 @@ input.df$elevated_hz <- as.factor(input.df$elevated_hz)
 input.df$fuelType_vicnsw <- as.factor(input.df$fuelType_vicnsw )
 
 names(input.df)[names(input.df)=='vph15'] <- 'rh.min'
+
+
+unique(input.df$VICSANSW.TYPE_NAME)
+
+tmp.ft.df <- input.df[input.df$fuelType_vicnsw %in% 
+                        names(which(table(input.df$fuelType_vicnsw)>=100)),]
+unique(tmp.ft.df$VICSANSW.TYPE_NAME)

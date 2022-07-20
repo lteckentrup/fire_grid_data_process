@@ -74,16 +74,23 @@ hz.ele.future <- read.future.prob.func(var.in.nm = '_hz_elevated.rds',
                                     future_s = 'rcp85_long',
                                     exclude.nm = 'noVeg')
 future.ra <- mean(hz.ele.future,na.rm=T)
-
+# 
+hz.ele.future.noveg <- read.future.prob.func(var.in.nm = '_hz_elevated.rds',
+                                       future_s = 'rcp85_long',
+                                       exclude.nm = '')
+future.ra.noveg <- mean(hz.ele.future.noveg,na.rm=T)
+# 
 change.ra <- future.ra - hist.ra
+change.ra.noveg <- future.ra.noveg - future.ra
 change.ra.vic <- get.small.area.func(change.ra,shape.vic)
+change.ra.vic.noveg <- get.small.area.func(change.ra.noveg,shape.vic)
 # plot(change.ra)
 
 wi.vic.fine <- resample(wi.vic,change.ra.vic)
-plot(wi.vic.fine)
+# plot(wi.vic.fine)
 
-plot(as.vector(change.ra.vic)~as.vector(1/wi.vic.fine),
-     pch=16,col=t_col('grey',90))
+# plot(as.vector(change.ra.vic)~as.vector(1/wi.vic.fine),
+#      pch=16,col=t_col('grey',90))
 
 # get lcm
 lcm.ra <- raster('E:/storage/equilibrium-lai-for-australia/downloads/LCM/luav4g9abll07811a02egigeo___/lu05v4ag/w001001.adf')
@@ -98,15 +105,84 @@ lcm.vic[!(lcm.vic %in% lcm.lut.natrua)] <- NA
 lcm.vic.fine <- resample(lcm.vic,wi.vic.fine)
 wi.vic.lcm <- mask(wi.vic.fine,lcm.vic.fine)
 change.ra.vic.lcm <- mask(change.ra.vic,lcm.vic.fine)
-
+change.ra.vic.lcm.ng <- mask(change.ra.vic.noveg,lcm.vic.fine)
 plot.df <- data.frame(Change = as.vector(change.ra.vic.lcm),
+                      Change.ng = as.vector(change.ra.vic.lcm.ng),
                       DI = as.vector((1/wi.vic.lcm)))
 plot.df <- plot.df[order(plot.df$DI),]
 
-library(mgcv)
-gam.fit <- gam(Change~s(DI,k=5),data = plot.df)
+# library(mgcv)
+# gam.fit <- gam(Change~s(DI,k=5),data = plot.df)
+# 
+# plot(Change~DI,data = plot.df,
+#      pch=16,col=t_col('grey',90))
+# points(gam.fit$fitted.values~gam.fit$model$DI,type='l',col='red')
+# abline(h=0)
 
-plot(Change~DI,data = plot.df,
-     pch=16,col=t_col('grey',90))
-points(gam.fit$fitted.values~gam.fit$model$DI,type='l',col='red')
-abline(h=0)
+# 
+plot.df$DI.bin <- cut(plot.df$DI,breaks = seq(0,7,by=0.1))
+levels(plot.df$DI.bin) <- seq(0.1,7,by=0.1)
+
+# new.threshold <- boxplot.stats(plot.df$Change[plot.df$DI.bin==1])$stats[5]
+# # 
+# library(vioplot)
+plot.df <- plot.df[!is.na(plot.df$Change),]
+plot.df$DI.level <- as.character(plot.df$DI.bin)
+plot.df$DI.level <- as.factor(plot.df$DI.level)
+# vioplot(Change~DI.bin,data = plot.df)
+# vioplot(plot.df$Change[plot.df$DI.bin==6])
+
+
+
+# 
+plot.df$DI.level <- droplevels(plot.df$DI.level)
+plot.df$p.val <- NA 
+for (f.i in seq_along(levels(plot.df$DI.bin))) {
+  plot.sub.df <- plot.df[
+    plot.df$DI.bin==levels(plot.df$DI.bin)[f.i],]
+
+  
+  if(nrow(plot.sub.df)>3){
+    test.t.out <- t.test(plot.sub.df$Change)
+    
+    plot.df$p.val[plot.df$DI.bin ==
+                    levels(plot.df$DI.bin)[f.i]]<- test.t.out$p.value
+  }
+  
+}
+
+sig.df <- plot.df[,c('DI.bin','p.val')]
+sig.df <- sig.df[!duplicated(sig.df),]
+sig.df <- sig.df[complete.cases(sig.df),]
+
+# TukeyHSD(aov(Change~DI.level,data = plot.df))
+# 
+dens=density(1/wi.vic.lcm,from=0, to=7)
+
+png('figures/Climate and veg.png',width = 600,height = 600*.618)
+par(mfrow=c(1,1),mar=c(5,5,1,1))
+plot(Change~DI.bin,data = plot.df,pch='.',xaxt='n',xlab='DI',
+     ylim=c(-0.2,0.3),xlim=c(0,70))
+axis(side = 1,at = seq(0.5,6.5,by=0.5) * 10 ,
+     labels = seq(0.5,6.5,by=0.5))
+abline(h=0,col='grey10')
+
+plot(Change.ng~DI.bin,
+     data = plot.df,
+     pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen')
+par(new=T)
+plot(dens$x * 10,
+     dens$y,
+     type="l",col='coral',lwd=2,
+     xlim=c(0,70),
+     ann=F,axes=F,ylim=c(0,5))
+dev.off()
+# par(new=T)
+# hist(wi.vic.lcm,xlim=c(0.5,6.5),main='',xlab='',
+#      freq =F,breaks = seq(0,7,by=0.1) )
+# # sig.df$DI.bin <- as.numeric(as.character(sig.df$DI.bin))*10
+# sig.df$position <- 0.3
+# points(position~(DI.bin),data = sig.df[sig.df$p.val<0.01,],
+#        pch='*')
+
+
