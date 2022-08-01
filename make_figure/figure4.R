@@ -114,7 +114,7 @@ wrap.plot.rcp.prob.func <- function(var.in.nm,
   if(if.x.axis){
     axis(side = 1,at =seq(140,150,by=1),labels = seq(140,150,by=1))
   }
-  legend('topledt',legend = sprintf('(%s)',legend.in[1]),bty='n')
+  legend('topleft',legend = sprintf('(%s)',legend.in[1]),bty='n')
   # # b
   # par(mar=c(1,1,1,3))
   # diff.rcp45_mid.mean_noVeg <- mask(diff.rcp45_mid.mean_noVeg, shape.vic)
@@ -173,7 +173,7 @@ plot.prob.future.change.func <- function(par.name,l.in,if.x.axis){
 }
 ####plot different scores
 # png('figures/future_prob_hz_rcp85_2100.png',width = 300 * 2*2,200*4*2)
-pdf('figures/fig4_future_prob_hz_rcp85_2100.pdf',width = 5*2,height=4*2)
+pdf('figures/fig4_future_prob_hz_rcp85_2100.pdf',width = 4*2,height=3*2)
 # par(cex=10)
 par(mfrow=c(2,2))
 par(oma=c(1,1,1,1),mar=c(4,3,1,0))
@@ -190,7 +190,7 @@ plot.prob.future.change.func(par.name = '_hz_elevated.rds',
 par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
-legend(x = 0.6,y=1.1,
+legend(x = 0.6,y=1.25,
        legend = c('-0.1 - 0','0 - 0.1',
                         '0.1 - 0.2','0.2 - 0.3',
                         '0.3 - 0.4'),
@@ -214,7 +214,7 @@ plot.prob.future.change.func(par.name = '_hz_ns.rds',
 par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
-legend(x = 0.6,y=1.1,
+legend(x = 0.6,y=1.25,
        legend = c('-0.1 - 0','0 - 0.1',
                   '0.1 - 0.2'),
        col = c('lightgreen',
@@ -231,7 +231,7 @@ plot.prob.future.change.func(par.name = '_hz_surface.rds',
 par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
-legend(x = 0.6,y=1.1,
+legend(x = 0.6,y=1.25,
        legend = c('-0.1 - 0','0 - 0.1'),
        col = c('lightgreen','burlywood'),
        pch=15,bty='n',horiz = T,xpd=T)

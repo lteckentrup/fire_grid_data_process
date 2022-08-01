@@ -85,7 +85,7 @@ plot.importance.func <- function(rf.fit.ft,
   legend('topleft',legend = l.out.2,bty='n')
 }
 
-pdf('figures/importance.pdf',width = 5*2,height = 5*3)
+pdf('figures/importance.pdf',width = 3*2,height = 3*3)
 par(mfrow=c(3,2),mar=c(5,5,1,1))
 # # 1
 # plot.importance.func(rf.fit.ft = rf.fit.ft,
@@ -103,12 +103,12 @@ par(mfrow=c(3,2),mar=c(5,5,1,1))
 
 # 4
 plot.importance.func(rf.fit.ft = rf.fit.elevated.hz,
-                     l.out.1 = '(a) Elevated hazard score',
+                     l.out.1 = '(a) Elevated',
                      l.out.2 = "(b)")
 
 # 5
 plot.importance.func(rf.fit.ft = rf.fit.ns.hz,
-                     l.out.1 = '(c) Near surface hazard score',
+                     l.out.1 = '(c) Near surface',
                      l.out.2 = "(d)")
 
 # # 6
@@ -118,6 +118,6 @@ plot.importance.func(rf.fit.ft = rf.fit.ns.hz,
 
 # 7
 plot.importance.func(rf.fit.ft = rf.fit.bark.hz,
-                     l.out.1 = '(e) Surface hazard score',
+                     l.out.1 = '(e) Surface',
                      l.out.2 = "(f)")
 dev.off()
