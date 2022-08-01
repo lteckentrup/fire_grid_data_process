@@ -110,7 +110,7 @@ pred.rf.func <- function(dat,y.nm,fit.in,
                                   'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
                                   'tmax' , 'rain' , 'rh.min', #climate
                                   'tmax.mean','map','pr.seaonality',#long term clim 
-                                  'lai.opt'),#vegetation,,#vegetation,
+                                  'lai.opt.mean'),#vegetation,,#vegetation,
                          ...){
   formula.use <- as.formula(paste0(y.nm,'~.'))
   test.df <- dat[,c(y.nm,#target

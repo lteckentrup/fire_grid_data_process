@@ -6,6 +6,14 @@ vic_map <- au_map[7,]$geometry
 shape.vic<- sf::as_Spatial(vic_map)
 
 
+# 
+get.small.area.func <- function(ra.in,p = p){
+  r2 <- crop(ra.in, extent(p))
+  r3 <- mask(r2, p)
+  # crs(r3) <- crs(ra.in)
+  # aggregate(r3, fact=3)
+  return(r3)
+}
 
 
 

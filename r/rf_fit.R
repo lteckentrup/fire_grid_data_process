@@ -3,30 +3,8 @@ library(randomForest)
 require(caTools)
 library(caret)
 source('r/process_input.R')
+source('r/function_rf.R')
 
-# function to fit rf$$$$######
-fit.rf.func <- function(dat,y.nm,
-                        x.nm = c('soil.density' ,  'clay' ,#'ph' , #soil attributes
-                        'rad.short.jan' ,'rad.short.jul', 'wi' ,'curvature_profile','curvature_plan',#topo
-                        'tmax' , 'rain' , 'rh.min', #climate
-                        'tmax.mean','map','pr.seaonality',#long term clim 
-                        'lai.opt.mean'),#vegetation,
-                        ...){
-  # set fomular
-  formula.use <- as.formula(paste0(y.nm,'~.'))
-  test.df <- dat[,c(y.nm,#target
-                    x.nm)]
-  # separate training and validting
-  set.seed(1935)
-  train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
-  TrainSet <- test.df[train,]
-  # fit 
-  model.hieght <- randomForest(formula.use,
-                               data = TrainSet, importance = TRUE,na.action=na.omit,
-                               ...)
-
-  return(model.hieght)
-}
 # fuel type#####
 tmp.ft.df <- input.df[!is.na(input.df$fuelType_vicnsw),]
 
@@ -79,14 +57,15 @@ rf.fit.hz.elevated <- fit.rf.func(dat = input.df,
                                   y.nm = 'elevated_hz',mtry=5)
 varImpPlot(rf.fit.hz.elevated)
 # rf.fit.hz.elevated.old <- readRDS('cache/rf.fit.hs.elevated.rds')
+# hist(as.numeric(as.character(rf.fit.hz.elevated.old$predicted)))
 # varImpPlot(rf.fit.hz.elevated.old)
 saveRDS(rf.fit.hz.elevated,'cache/rf.fit.hs.elevated.rds')
 # 4. 
-input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- 'NA'
-ns.df <- input.df[!is.na(input.df$nearsurface_hz),]
-ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
+# input.df$nearsurface_hz[input.df$nearsurface_hz==0] <- 'NA'
+# ns.df <- input.df[!is.na(input.df$nearsurface_hz),]
+# ns.df$nearsurface_hz <- factor(ns.df$nearsurface_hz )
 
-rf.fit.hz.ns <- fit.rf.func(dat = ns.df,
+rf.fit.hz.ns <- fit.rf.func(dat = input.df,
                             y.nm = 'nearsurface_hz',mtry=5)
 # varImpPlot(rf.fit.hz.ns)
 saveRDS(rf.fit.hz.ns,'cache/rf.fit.hz.ns.rds')

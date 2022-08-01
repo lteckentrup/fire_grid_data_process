@@ -17,7 +17,7 @@ predict.rf.func <- function(model.in,
                             rad.jan,rad.jul,wi,c.profile,c.plan,
                             tmax,rain,rh.min,
                             tmax.mean,map,pr.seaonality,
-                            lai.opt,
+                            lai.opt.mean,
                             giveProb){
   # model.in = readRDS('cache/rf.fit.hz.surface.rds')
   # make a df
@@ -26,7 +26,7 @@ predict.rf.func <- function(model.in,
                    wi = wi,curvature_profile = c.profile,curvature_plan=c.plan,
                    tmax = tmax,rain = rain,rh.min = rh.min,
                    tmax.mean = tmax.mean,map=map,pr.seaonality = pr.seaonality,
-                   lai.opt=lai.opt)
+                   lai.opt.mean=lai.opt.mean)
   # predict prob and score
   if(giveProb){
     
@@ -91,7 +91,7 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
                                 wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                                 tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
                                 tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
-                                lai.opt = matrix(lai.ra),
+                                lai.opt.mean = matrix(lai.ra),
                                 giveProb = T))
   # get predicted value
   rf.m <- predict.rf.func(model.in = model.rf,
@@ -101,7 +101,7 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
                           wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
                           tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
-                          lai.opt = matrix(lai.ra),giveProb = F)
+                          lai.opt.mean = matrix(lai.ra),giveProb = F)
   
   # save prediction
   var.m <- matrix(as.numeric(as.character(rf.m)),
@@ -139,24 +139,24 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
 # wrap func####
 wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   # # where.is.data <- 'data/met/future/access/rcp45_20452060'
-  # 1. canopy height
-  my.fun(path.nm = where.is.data,
-         model.path = 'cache/rf.fit.canopy.height.rds',
-         out.nm = '_height_canopy.rds')
-  # readRDS(model.path)
-  # 2. ns height
-  my.fun(path.nm = where.is.data,
-         model.path = 'cache/rf.fit.ns.height.rds',
-         out.nm = '_height_ns.rds')
+  # # 1. canopy height
+  # my.fun(path.nm = where.is.data,
+  #        model.path = 'cache/rf.fit.canopy.height.rds',
+  #        out.nm = '_height_canopy.rds')
+  # # readRDS(model.path)
+  # # 2. ns height
+  # my.fun(path.nm = where.is.data,
+  #        model.path = 'cache/rf.fit.ns.height.rds',
+  #        out.nm = '_height_ns.rds')
   # 3. hz ele
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hs.elevated.rds',
          out.nm = '_hz_elevated.rds')
 
-  # 4. hz bark
-  my.fun(path.nm = where.is.data,
-         model.path = 'cache/rf.fit.hz.bark.rds',
-         out.nm = '_hz_bark.rds')
+  # # 4. hz bark
+  # my.fun(path.nm = where.is.data,
+  #        model.path = 'cache/rf.fit.hz.bark.rds',
+  #        out.nm = '_hz_bark.rds')
 
   # 5. hz ns
   my.fun(path.nm = where.is.data,
@@ -166,9 +166,9 @@ wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   my.fun(path.nm = where.is.data,
          model.path = 'cache/rf.fit.hz.surface.rds',
          out.nm = '_hz_surface.rds')
-  # 7. ft surface
-  my.fun(path.nm = where.is.data,
-         model.path = 'cache/rf.fit.fuelType.rds',
-         out.nm = '_fuelType.rds')
+  # # 7. ft surface
+  # my.fun(path.nm = where.is.data,
+  #        model.path = 'cache/rf.fit.fuelType.rds',
+  #        out.nm = '_fuelType.rds')
 }
 

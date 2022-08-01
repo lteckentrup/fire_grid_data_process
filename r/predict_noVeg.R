@@ -46,7 +46,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                                 wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                                 tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
                                 tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
-                                lai.opt = matrix(lai.ra),
+                                lai.opt.mean = matrix(lai.ra),
                                 giveProb = T))
   # get predicted value
   rf.m <- predict.rf.func(model.in = model.rf,
@@ -55,7 +55,7 @@ predict.rf.cmip.noVeg.func <- function(path.nm,model.path,out.nm){
                           wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
                           tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
                           tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
-                          lai.opt = matrix(lai.ra),giveProb = F)
+                          lai.opt.mean = matrix(lai.ra),giveProb = F)
   # save prediction
   var.m <- matrix(as.numeric(as.character(rf.m)),
                   ncol = ncol(soil.den),

@@ -1,3 +1,4 @@
+library(raster)
 source('r/functions_predict.R')
 # read
 met.path.vec <- list.dirs('data/met/future/',recursive = T)

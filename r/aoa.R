@@ -7,13 +7,13 @@ library(viridis)
 library(latticeExtra)
 library(gridExtra)
 
-get.small.area.func <- function(ra.in,p = p){
-  r2 <- crop(ra.in, extent(p))
-  r3 <- mask(r2, p)
-  # crs(r3) <- crs(ra.in)
-  # aggregate(r3, fact=3)
-  return(r3)
-}
+# get.small.area.func <- function(ra.in,p = p){
+#   r2 <- crop(ra.in, extent(p))
+#   r3 <- mask(r2, p)
+#   # crs(r3) <- crs(ra.in)
+#   # aggregate(r3, fact=3)
+#   return(r3)
+# }
 
 # functions####
 source('r/functions_predict.R')
@@ -104,30 +104,30 @@ sp.df <- data.frame(lon = samplepoints[,1],
 
 
 trainDat <- trainDat[complete.cases(trainDat),]
-# 
-model_random <- train(trainDat[,names(predictors)],
-                      trainDat$response,
-                      method="rf",
-                      importance=TRUE,
-                      trControl = trainControl(method="cv"))
-di.train <- trainDI(train = subset(trainDat,select= -ID),
-                    variables = x.nm)
-di.train$trainDI
-# 
-x <- trainDI(train = subset(trainDat[100:1500,],select= -ID),
-             variables = x.nm)
+# # 
+# model_random <- train(trainDat[,names(predictors)],
+#                       trainDat$response,
+#                       method="rf",
+#                       importance=TRUE,
+#                       trControl = trainControl(method="cv"))
+# di.train <- trainDI(train = subset(trainDat,select= -ID),
+#                     variables = x.nm)
+# di.train$trainDI
+# # 
+# x <- trainDI(train = subset(trainDat[100:1500,],select= -ID),
+#              variables = x.nm)
 
-boxplot.stats(x$trainDI)$stats[5]
-vec.di <- x$trainDI
-# vec.di[is.infinite(vec.di)] <- 10
-range(vec.di[is.finite(vec.di)])
-boxplot.stats(vec.di[is.finite(vec.di)])$stats[5]
-x$threshold
+# # boxplot.stats(x$trainDI)$stats[5]
+# # vec.di <- x$trainDI
+# # vec.di[is.infinite(vec.di)] <- 10
+# range(vec.di[is.finite(vec.di)])
+# boxplot.stats(vec.di[is.finite(vec.di)])$stats[5]
+# x$threshold
 # quantile(vec.di[is.finite(vec.di)],probs = .75)
 
-test <- trainDat[c(100:200,1400:1500),]
+# test <- trainDat[c(100:200,1400:1500),]
 
-plot(test$lai.opt.mean)
+# plot(test$lai.opt.mean)
 # prediction_random <- predict(predictors,model_random)
 # mask.1 <- predictors[[1]]
 # csample(mask.1,75,15,maxdist=0.20,seed=15)
@@ -165,13 +165,17 @@ plot(AOA_sub$DI)
 plot(AOA_sub$AOA,col=c('grey','red'))
 points(samplepoints,pch=15,cex=0.05)
 
-
 # 
-
+di.train <- trainDI(train = subset(trainDat,select= -ID),
+                    variables = x.nm)
+# 
+hist(di.train$trainDI[di.train$trainDI>0])
+length(di.train$trainDI[di.train$trainDI>0])
+boxplot.stats(di.train$trainDI[di.train$trainDI>0])$stats[5]
 AOA_sub <- readRDS('cache/aoa.natrual.land.rds')
 plot(AOA_sub$DI)
 
-di.extract <- extract(AOA_sub$DI,samplepoints,df=TRUE)
+# di.extract <- extract(AOA_sub$DI,samplepoints,df=TRUE)
 
 # hist(di.extract$DI)
 # range(di.extract$DI,na.rm=T)
@@ -181,6 +185,9 @@ new.threshold <- boxplot.stats(AOA_sub.di[is.finite(AOA_sub.di)])$stats[5]
 AOA_sub$AOA.new <- AOA_sub$DI
 AOA_sub$AOA.new[AOA_sub$DI <= new.threshold] <- 1
 AOA_sub$AOA.new[AOA_sub$DI > new.threshold] <- 0
+
+plot(AOA_sub$DI)
+plot(AOA_sub$parameters)
 # 
 png('figures/aoa.png',width = 100*8,height = 100*5)
 par(mar=c(4,4,1,1))
