@@ -28,6 +28,7 @@ pred.rf.all.func <- function(dat,y.nm,fit.in,
   set.seed(1935)
   train <- sample(nrow(test.df), 0.7*nrow(test.df), replace = FALSE)
   ValidSet <- test.df[-train,]
+  ValidSet <- ValidSet[!duplicated(ValidSet),]
   # 
   prediction_for_roc_curve <- predict(fit.in,ValidSet)
   # model.hieght <- predict(rf.fit.canopy.h,)
