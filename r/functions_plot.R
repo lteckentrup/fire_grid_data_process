@@ -29,14 +29,14 @@ read.future.all.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
     rcp45_mid.fn <- rcp45_mid.fn[grep(exclude.nm, rcp45_mid.fn)]
   }
   rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
-  
+  print(rcp45_mid.fn)
   rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){
     
     x <- readRDS(fn.in)
     return(x[['val']])
   })
   
-  print(rcp45_mid.fn)
+  # print(rcp45_mid.fn)
   raster.new = stack(rcp45.mid.h.c)
   return(raster.new)
 }

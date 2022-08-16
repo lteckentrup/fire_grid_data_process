@@ -3,6 +3,9 @@ pr.season.rcp45.mid <- readRDS('cache/pr_seaonality_rcp45_mid.rds')
 pr.season.rcp45.long <- readRDS('cache/pr_seaonality_rcp45_long.rds')
 pr.season.rcp85.mid <- readRDS('cache/pr_seaonality_rcp85_mid.rds')
 pr.season.rcp85.long <- readRDS('cache/pr_seaonality_rcp85_long.rds')
+
+library(raster)
+source('r/get_vic_shape.R')
 # 
 
 pdf('figures/future_rainfall_seasonality.pdf',height = 8,width = 9)
@@ -53,12 +56,14 @@ plot(pr.season.hist,
 
 legend('topleft',legend = '(e) Rainfall seasonality-current',bty='n')
 # b
-break.vec <- seq(-0.01,0.03,by=0.01)
+break.vec <- seq(-0.01,0.03,by=0.001)
 pr.season.rcp85.long <- mask(pr.season.rcp85.long, shape.vic)
 
 plot((pr.season.rcp85.long-pr.season.hist),main = '',
      breaks = break.vec,
-     col=c('lightskyblue',rev(heat.colors(length(break.vec)-2))),
+     axis.args=list(at= seq(-0.01,0.03,by=0.01),
+                    labels=seq(-0.01,0.03,by=0.01)),
+     col=hcl.colors(length(break.vec)-1),
      box=FALSE,bty='n',
      xaxt='n')
 
