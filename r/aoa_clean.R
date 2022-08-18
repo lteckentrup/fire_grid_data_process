@@ -7,13 +7,6 @@ library(viridis)
 library(latticeExtra)
 library(gridExtra)
 
-get.small.area.func <- function(ra.in,p = p){
-  r2 <- crop(ra.in, extent(p))
-  r3 <- mask(r2, p)
-  # crs(r3) <- crs(ra.in)
-  # aggregate(r3, fact=3)
-  return(r3)
-}
 
 # functions####
 source('r/functions_predict.R')
