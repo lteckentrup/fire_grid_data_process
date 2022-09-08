@@ -45,6 +45,7 @@ read.future.prob.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
 source('r/functions_predict.R')
 source('r/functions_plot.R')
 source('r/get_vic_shape.R')
+source('r/process_input.R')
 
 # 
 
@@ -81,7 +82,11 @@ hz.ele.future.noveg <- read.future.prob.func(var.in.nm = '_hz_elevated.rds',
 future.ra.noveg <- mean(hz.ele.future.noveg,na.rm=T)
 # 
 change.ra <- future.ra - hist.ra
-change.ra.noveg <- future.ra.noveg - future.ra
+change.ra.noveg <- future.ra - future.ra.noveg 
+# change.ra.noveg <- (hz.ele.future.noveg-hz.ele.future)
+# change.ra.noveg <- range(change.ra.noveg,na.rm=T)
+# as.vector(change.ra.noveg)
+# as.vector(change.ra)
 change.ra.vic <- get.small.area.func(change.ra,shape.vic)
 change.ra.vic.noveg <- get.small.area.func(change.ra.noveg,shape.vic)
 # plot(change.ra)
@@ -93,7 +98,7 @@ wi.vic.fine <- resample(wi.vic,change.ra.vic)
 #      pch=16,col=t_col('grey',90))
 
 # get lcm
-lcm.ra <- raster('E:/storage/equilibrium-lai-for-australia/downloads/LCM/luav4g9abll07811a02egigeo___/lu05v4ag/w001001.adf')
+lcm.ra <- raster('D:/e drive back up/storage/equilibrium-lai-for-australia/downloads/LCM/luav4g9abll07811a02egigeo___/lu05v4ag/w001001.adf')
 lcm.vic <- get.small.area.func(lcm.ra,shape.vic)
 lcm.lut <- lcm.vic@data@attributes[[1]]
 lcm.lut.natrua <- lcm.lut$ID[lcm.lut$LU_DESC %in% c('CONSERVATION AND NATURAL ENVIRONMENTS',
@@ -106,8 +111,10 @@ lcm.vic.fine <- resample(lcm.vic,wi.vic.fine)
 wi.vic.lcm <- mask(wi.vic.fine,lcm.vic.fine)
 change.ra.vic.lcm <- mask(change.ra.vic,lcm.vic.fine)
 change.ra.vic.lcm.ng <- mask(change.ra.vic.noveg,lcm.vic.fine)
+hist.ra.ng <-  mask(get.small.area.func(hist.ra,shape.vic),change.ra.vic.lcm.ng)
 plot.df <- data.frame(Change = as.vector(change.ra.vic.lcm),
                       Change.ng = as.vector(change.ra.vic.lcm.ng),
+                      current.val = as.vector(hist.ra.ng),
                       DI = as.vector((1/wi.vic.lcm)))
 plot.df <- plot.df[order(plot.df$DI),]
 
@@ -132,8 +139,23 @@ plot.df$DI.level <- as.factor(plot.df$DI.level)
 # vioplot(Change~DI.bin,data = plot.df)
 # vioplot(plot.df$Change[plot.df$DI.bin==6])
 
+elevate.df <- input.df[!is.na(input.df$elevated_hz),]
+elevate.df$pet <- extract(pet.ra,cbind(elevate.df$lon,elevate.df$lat))
+elevate.df$DI <- elevate.df$pet / elevate.df$map 
+elevate.df$DI.bin <- cut(elevate.df$DI,breaks = seq(0,7,by=0.5))
+levels(elevate.df$DI.bin) <- seq(0,7,by=0.5)
+elevate.df$DI.bin <- droplevels(elevate.df$DI.bin)
+
+elevate.df$hz.ele <- as.numeric(as.character(elevate.df$elevated_hz))
+elevate.df <- elevate.df[elevate.df$hz.ele != 0,]
+elevate.df <- elevate.df[,c("hz.ele","DI.bin",'DI')]
+plot(hz.ele~DI.bin,data = elevate.df,pch='.',xlab='DI',
+     ylab='Current probability')
+plot(hz.ele~DI,data = elevate.df,pch='.',xlab='DI',
+     ylab='Current probability',xlim=c(0,7))
 
 
+vioplot(hz.ele~DI.bin,data = elevate.df[!is.na(elevate.df$DI.bin),])
 # 
 plot.df$DI.level <- droplevels(plot.df$DI.level)
 plot.df$p.val <- NA 
@@ -161,17 +183,26 @@ sig.df <- sig.df[complete.cases(sig.df),]
 boxplot.stats(plot.df$Change.ng[plot.df$DI<2& plot.df$DI>0.75])$stats
 dens=density(1/wi.vic.lcm,from=0, to=7)
 
-png('figures/Climate and veg.png',width = 600,height = 600*.618)
-par(mfrow=c(1,1),mar=c(5,5,1,1))
+pdf('figures/Climate and veg.pdf',width = 8,height = 2*6*.618)
+par(mfrow=c(2,1),mar=c(5,5,1,1))
+par(mar=c(1,5,4,1))
+plot(current.val~DI.bin,data = plot.df,pch='.',xaxt='n',xlab=' ',
+     ylab='Current probability',
+     xlim=c(0,70))
+legend('topleft',legend = '(a)',bty='n')
+# 
+par(mar=c(4,5,1,1))
 plot(Change~DI.bin,data = plot.df,pch='.',xaxt='n',xlab='DI',
      ylim=c(-0.2,0.3),xlim=c(0,70))
 axis(side = 1,at = seq(0.5,6.5,by=0.5) * 10 ,
      labels = seq(0.5,6.5,by=0.5))
 abline(h=0,col='grey10')
+# 
 
 plot(Change.ng~DI.bin,
-     data = plot.df,
+     data = plot.df,ylab='Change of probability',
      pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen')
+legend('topleft',legend = '(b)',bty='n')
 par(new=T)
 plot(dens$x * 10,
      dens$y,
@@ -186,5 +217,6 @@ dev.off()
 # sig.df$position <- 0.3
 # points(position~(DI.bin),data = sig.df[sig.df$p.val<0.01,],
 #        pch='*')
+
 
 
