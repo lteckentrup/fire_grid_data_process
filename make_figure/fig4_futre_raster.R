@@ -1,5 +1,8 @@
 source('r/get_vic_shape.r')
-
+library(wesanderson)
+col.vec <- c(wes_palette("GrandBudapest1", n = 4)[c(3,4,2)],
+             'grey80','grey70',
+             wes_palette("Zissou1", n = 4)[1:3])
 library(raster)
 read.future.prob.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
   # read file names
@@ -12,7 +15,8 @@ read.future.prob.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
   }else{
     rcp45_mid.fn <- rcp45_mid.fn[grep('noVeg', rcp45_mid.fn)]
   }
-  
+  rcp45_mid.fn <- rcp45_mid.fn[!rcp45_mid.fn %in% 
+                                 rcp45_mid.fn[grep('rain', rcp45_mid.fn)]]
   rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
   # read in probes
   rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){
@@ -44,9 +48,7 @@ wrap.plot.rcp.prob.func <- function(var.in.nm,
                                     lab.in = seq(-0.4,0.4,by=0.1),
                                     if.x.axis=FALSE,
                                     if.y.axis=FALSE,
-                                    col.in = c('navy','darkgreen','palegreen3','lightgreen',
-                                               # 'grey',
-                                               'burlywood','coral','darkorange4','red')){
+                                    col.in = col.vec){
   # read model outputs####
   # 
   hz.ele.his <- read.future.prob.func(var.in.nm = var.in.nm,
@@ -191,12 +193,10 @@ par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
 legend(x = 0.6,y=1.25,
-       legend = c('-0.1 - 0','0 - 0.1',
+       legend = c('-0.2 - 0.1','-0.1 - 0','0 - 0.1',
                         '0.1 - 0.2','0.2 - 0.3',
                         '0.3 - 0.4'),
-       col = c('lightgreen',
-               # 'grey',
-               'burlywood','coral','darkorange4','red'),
+       col = col.vec[3:8],
        pch=15,bty='n',horiz = T,xpd=T)
 # plot.prob.future.change.func(par.name = '_hz_bark.rds',
 #                              l.in=c('(c) Bark fuel score',
@@ -215,11 +215,9 @@ par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
 legend(x = 0.6,y=1.25,
-       legend = c('-0.1 - 0','0 - 0.1',
+       legend = c('-0.2 - 0.1','-0.1 - 0','0 - 0.1',
                   '0.1 - 0.2'),
-       col = c('lightgreen',
-               # 'grey',
-               'burlywood','coral'),
+       col = col.vec[3:8],
        pch=15,bty='n',horiz = T,xpd=T)
 ##########
 par(mfrow=c(2,2))
@@ -232,8 +230,8 @@ par(new=T)
 par(mfrow=c(1,1))
 plot(0,pch=NA,ann=F,axes=F)
 legend(x = 0.6,y=1.25,
-       legend = c('-0.1 - 0','0 - 0.1'),
-       col = c('lightgreen','burlywood'),
+       legend = c('-0.2 - 0.1','-0.1 - 0','0 - 0.1'),
+       col = col.vec[3:8],
        pch=15,bty='n',horiz = T,xpd=T)
 dev.off()
 

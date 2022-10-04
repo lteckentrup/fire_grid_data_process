@@ -1,3 +1,7 @@
+library(randomForest)
+require(caTools)
+library(caret)
+
 rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
 rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
 varImpPlot(rf.fit.canopy.h,type=1)
@@ -62,7 +66,7 @@ plot.importance.func <- function(rf.fit.ft,
   x <- get.import.order.func(rf.fit.ft)
   
   # change names
-  x[x == 'pr.seaonality'] <- 'Rainfall seaonality'
+  x[x == 'pr.seaonality'] <- 'Rainfall seasonality'
   x[x == 'map'] <- 'MAP'
   x[x == 'tmax.mean'] <- 'Mean Tmax'
   x[x == 'rh.min'] <- 'Minimum RH'
