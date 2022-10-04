@@ -11,8 +11,8 @@ model.input.df <- model.input.df[complete.cases(model.input.df),]
 sample.d <- model.input.df#[1:1000,]
 n.split <- 4
 data.ls <- split(sample.d, rep(1:n.split, 
-                    length.out = nrow(sample.d), 
-                    each = ceiling(nrow(sample.d)/n.split)))
+                               length.out = nrow(sample.d), 
+                               each = ceiling(nrow(sample.d)/n.split)))
 # save memory
 rm(model.input.df)
 # rm(sample.d)
@@ -36,6 +36,7 @@ stopImplicitCluster()
 e.time <- Sys.time()
 
 time.use <- e.time - s.time
+print(time.use)
 # get out put####
 out.list <- lapply(X = out.list,as.character)
 
@@ -57,32 +58,25 @@ saveRDS(out.ra,'out.access.short.rds')
 
 # make plots#########
 tmp.ft.df <- readRDS('ft.train.evaluation.rds')
-ft.in.df <- readRDS('cache/ft.met.lai.rds')
-evc.df <- raster('data/EVC_fuelType/evc/VICSANSW161.tif')
+ft.df <- tmp.ft.df[,c('ft.new','ft.new.num')]
+ft.df <- ft.df[!duplicated(ft.df),]
+# 
+library(RColorBrewer)
 
-atrribute.df <- evc.df@data@attributes[[1]]
-atrribute.df <- atrribute.df[,c('VICSANSW.FUEL_TYPE' , 'VICSANSW.TYPE_NAME')]
-nm.vec <- atrribute.df$VICSANSW.TYPE_NAME[atrribute.df$VICSANSW.FUEL_TYPE %in%
-                                            unique(ft.in.df$ft)]
-ft.nm.df <- data.frame(nm = atrribute.df$VICSANSW.TYPE_NAME[atrribute.df$VICSANSW.FUEL_TYPE %in%
-                                                              unique(ft.in.df$ft)],
-                       ID = unique(ft.in.df$ft))
-
-ID.natue <- ft.nm.df$ID[!ft.nm.df$nm %in% c('Eaten Out Grass','Orchard / Vineyard',
-                                            'Softwood Plantation','Hardwood Plantation',
-                                            'Water, sand, no vegetation')]
-ft.nm.df <- ft.nm.df[ft.nm.df$ID %in% ID.natue,]
-ft.nm.df$ID.factor <- as.factor(ft.nm.df$ID)
-
-# dev.new() 
+n <- nrow(ft.df)
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector.all = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector <- sample(col_vector.all, n)
+# dev.new()
 pdf('test.pdf',width = 15,height = 15)
 # 
-par(mar=c(3,3,0,0),mfrow=c(2,1))
+par(mar=c(3,3,1,1),mfrow=c(2,1))
 # 
 plot(out.ra,
-     breaks = c(ft.nm.df$ID[1]-0.1,ft.nm.df$ID+0.1),
-     col=c(col_vector[ft.nm.df$ID.factor]),legend=F)
+     # breaks = c(ft.nm.df$ID[1]-0.1,ft.nm.df$ID+0.1),
+     col=c(col_vector[ft.df$ft.new.num]),legend=F)
 plot(0,pch=NA,ann=F,axes=F)
-legend('top',legend = as.character(ft.nm.df$nm),col = col_vector[ft.nm.df$ID.factor],
+legend('top',legend = levels(ft.df$ft.new),col = col_vector[ft.df$ft.new.num],
        pch=15,ncol=2,bty='n',xpd=T,cex=0.8)
 dev.off()
+

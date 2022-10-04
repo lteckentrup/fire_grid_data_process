@@ -43,6 +43,8 @@ ft.in.df <- ft.in.df[ft.in.df$ft %in% ID.natue,]
 tmp.ft.df <- ft.in.df[!is.na(ft.in.df$ft),]
 
 tmp.ft.df$fuelType_vicnsw <- factor(tmp.ft.df$ft)
+tmp.ft.df <- tmp.ft.df[complete.cases(tmp.ft.df),]
+
 # unique(tmp.ft.df$VICSANSW.TYPE_NAME)
 rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                          y.nm = 'fuelType_vicnsw',
@@ -52,13 +54,13 @@ rf.fit.ft <- fit.rf.func(dat = tmp.ft.df,
                                   'tmax.mean','map','pr.seaonality',#long term clim
                                   'lai.opt.mean'
                          ))
-tmp.ft.df$
-varImpPlot(rf.fit.ft)
+
+# varImpPlot(rf.fit.ft)
 # previous.fit <-rf.fit.ft <-  readRDS('cache/rf.fit.fuelType.new.rds')
-unique(previous.fit$predicted)
-x <- previous.fit$confusion
+# unique(previous.fit$predicted)
+# x <- previous.fit$confusion
 saveRDS(rf.fit.ft,'cache/rf.fit.fuelType.new.rds')
-varImpPlot(previous.fit)
+# varImpPlot(previous.fit)
 # evaluate#####
 # #####
 pred.rf.all.func <- function(dat,y.nm,fit.in, 
