@@ -5,41 +5,6 @@ get.small.area.func <- function(ra.in,p = p){
   # aggregate(r3, fact=3)
   return(r3)
 }
-read.future.prob.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
-  # read file names
-  rcp45_mid.fn <- list.files(path = 'data/met/future/',
-                             pattern = var.in.nm,recursive = T,full.names = T)
-  # filter files
-  if(exclude.nm =='noVeg'){
-    rcp45_mid.fn <- rcp45_mid.fn[!rcp45_mid.fn %in% 
-                                   rcp45_mid.fn[grep(exclude.nm, rcp45_mid.fn)]]
-  }else{
-    rcp45_mid.fn <- rcp45_mid.fn[grep('noVeg', rcp45_mid.fn)]
-  }
-  
-  rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
-  # read in probes
-  rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){
-    
-    x <- readRDS(fn.in)
-    x.prob <- x[['prob']]
-    high.risk.4 <- x.prob[['4']]
-    high.risk.5 <- x.prob[['5']]
-    
-    
-    high.total.ra <- high.risk.4 + high.risk.5
-    
-    return(high.total.ra)
-  })
-  # get model names
-  model.names <- list.dirs('data/met/future/',full.names = F,recursive = F)
-  # stack and save
-  print(rcp45_mid.fn)
-  raster.new = stack(rcp45.mid.h.c)
-  names(raster.new) <- model.names
-  
-  return(raster.new)
-}
 
 # functions####
 source('r/functions_predict.R')
@@ -98,19 +63,22 @@ wi.vic.fine <- resample(wi.vic,change.ra.vic)
 #      pch=16,col=t_col('grey',90))
 
 # get lcm
-lcm.ra <- raster('D:/e drive back up/storage/equilibrium-lai-for-australia/downloads/LCM/luav4g9abll07811a02egigeo___/lu05v4ag/w001001.adf')
-lcm.vic <- get.small.area.func(lcm.ra,shape.vic)
-lcm.lut <- lcm.vic@data@attributes[[1]]
-lcm.lut.natrua <- lcm.lut$ID[lcm.lut$LU_DESC %in% c('CONSERVATION AND NATURAL ENVIRONMENTS',
-                                                    'PRODUCTION FROM RELATIVELY NATURAL ENVIRONMENTS')]
+# lcm.ra <- raster('data/lcm/lu05v4ag/w001001.adf')
+# lcm.vic <- get.small.area.func(lcm.ra,shape.vic)
+# lcm.lut <- lcm.vic@data@attributes[[1]]
+# lcm.lut.natrua <- lcm.lut$ID[lcm.lut$LU_DESC %in% c('CONSERVATION AND NATURAL ENVIRONMENTS',
+#                                                     'PRODUCTION FROM RELATIVELY NATURAL ENVIRONMENTS')]
+# 
+# 
+# lcm.vic[!(lcm.vic %in% lcm.lut.natrua)] <- NA
+# # filter out non-natural
+# lcm.vic.fine <- resample(lcm.vic,wi.vic.fine)
+aoa.ra <- readRDS('cache/aoa.natrual.land.rds')
 
-
-lcm.vic[!(lcm.vic %in% lcm.lut.natrua)] <- NA
-# filter out non-natural
-lcm.vic.fine <- resample(lcm.vic,wi.vic.fine)
-wi.vic.lcm <- mask(wi.vic.fine,lcm.vic.fine)
-change.ra.vic.lcm <- mask(change.ra.vic,lcm.vic.fine)
-change.ra.vic.lcm.ng <- mask(change.ra.vic.noveg,lcm.vic.fine)
+aoa.ra.small <- crop(aoa.ra$DI,wi.vic.fine)
+wi.vic.lcm <- mask(wi.vic.fine,aoa.ra.small)
+change.ra.vic.lcm <- mask(change.ra.vic,aoa.ra.small)
+change.ra.vic.lcm.ng <- mask(change.ra.vic.noveg,aoa.ra.small)
 hist.ra.ng <-  mask(get.small.area.func(hist.ra,shape.vic),change.ra.vic.lcm.ng)
 plot.df <- data.frame(Change = as.vector(change.ra.vic.lcm),
                       Change.ng = as.vector(change.ra.vic.lcm.ng),
@@ -192,16 +160,18 @@ plot(current.val~DI.bin,data = plot.df,pch='.',xaxt='n',xlab=' ',
 legend('topleft',legend = '(a)',bty='n')
 # 
 par(mar=c(4,5,1,1))
-plot(Change~DI.bin,data = plot.df,pch='.',xaxt='n',xlab='DI',
+plot(Change~DI.bin,data = plot.df,pch='.',xaxt='n',yaxt='n',xlab='DI',
      ylim=c(-0.2,0.3),xlim=c(0,70))
 axis(side = 1,at = seq(0.5,6.5,by=0.5) * 10 ,
      labels = seq(0.5,6.5,by=0.5))
+axis(side = 2,at = seq(0,0.3,by=0.1),
+     labels = seq(0,0.3,by=0.1))
 abline(h=0,col='grey10')
 # 
 
 plot(Change.ng~DI.bin,
      data = plot.df,ylab='Change of probability',
-     pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen')
+     pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen',yaxt='n')
 legend('topleft',legend = '(b)',bty='n')
 par(new=T)
 plot(dens$x * 10,
@@ -209,6 +179,8 @@ plot(dens$x * 10,
      type="l",col='coral',lwd=2,
      xlim=c(0,70),
      ann=F,axes=F,ylim=c(0,5))
+axis(side = 2,at = c(0,1),
+     labels = c(0,1),col='coral',col.axis = 'coral')
 dev.off()
 # par(new=T)
 # hist(wi.vic.lcm,xlim=c(0.5,6.5),main='',xlab='',
