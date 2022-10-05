@@ -191,7 +191,7 @@ plot.prob.future.change.func(par.name = '_hz_elevated.rds',
 #            'burlywood','coral','darkorange4','red')
 par(new=T)
 par(mfrow=c(1,1))
-plot(0,pch=NA,ann=F,axes=F)
+plot(0,pch=NA,ann=F,axes=F,xlab='lon',ylab='lat')
 legend(x = 0.6,y=1.25,
        legend = c('-0.2 - 0.1','-0.1 - 0','0 - 0.1',
                         '0.1 - 0.2','0.2 - 0.3',
