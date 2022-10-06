@@ -1,6 +1,7 @@
 source('r/get_vic_shape.r')
 library(wesanderson)
 library(raster)
+source('r/functions_plot.R')
 # wes_palette("Zissou1", n = 4)
 # wes_palette("GrandBudapest1", n = 4)[c(1,2,4,3)]
 # c('navy','darkgreen','palegreen3','grey40',
@@ -71,8 +72,8 @@ pdf('figures/hist_rain_seasonality_impact.pdf',width = 8,height = 8*.618)
   hgA <- hist(ori.change.ra, breaks = brk.vec, plot = FALSE) # Save first histogram data
   hgB <- hist(real.change.ra, breaks = brk.vec, plot = FALSE) # Save 2nd histogram data
   
-  plot(hgA, border = NA,col = c2,main='',xlab='Change of Probability') # Plot 1st histogram using a transparent color
-  plot(hgB, border = NA,col = c1, add = TRUE)
+  plot(hgB, border = NA,col = c1,main='',xlab='Change of Probability') # Plot 1st histogram using a transparent color
+  plot(hgA, border = NA,col = c2, add = TRUE)
   
   legend('topright',legend = c('Constant',
                                'Predicted'),pch=15,col=c(c1,c2),

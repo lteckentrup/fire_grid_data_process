@@ -48,6 +48,7 @@ future.ra.noveg <- mean(hz.ele.future.noveg,na.rm=T)
 # 
 change.ra <- future.ra - hist.ra
 change.ra.noveg <- future.ra - future.ra.noveg 
+median(change.ra.noveg,na.rm=T)
 # change.ra.noveg <- (hz.ele.future.noveg-hz.ele.future)
 # change.ra.noveg <- range(change.ra.noveg,na.rm=T)
 # as.vector(change.ra.noveg)
@@ -84,6 +85,11 @@ plot.df <- data.frame(Change = as.vector(change.ra.vic.lcm),
                       Change.ng = as.vector(change.ra.vic.lcm.ng),
                       current.val = as.vector(hist.ra.ng),
                       DI = as.vector((1/wi.vic.lcm)))
+
+plot.df <- data.frame(Change = as.vector(change.ra.vic),
+                      Change.ng = as.vector(change.ra.vic.noveg),
+                      current.val = as.vector(get.small.area.func(hist.ra,shape.vic)),
+                      DI = as.vector((1/wi.vic.fine)))
 plot.df <- plot.df[order(plot.df$DI),]
 
 # library(mgcv)
@@ -95,8 +101,9 @@ plot.df <- plot.df[order(plot.df$DI),]
 # abline(h=0)
 
 # 
-plot.df$DI.bin <- cut(plot.df$DI,breaks = seq(0,7,by=0.1))
-levels(plot.df$DI.bin) <- seq(0.1,7,by=0.1)
+bin.vec <- seq(0,7,by=0.1)
+plot.df$DI.bin <- cut(plot.df$DI,breaks = bin.vec)
+levels(plot.df$DI.bin) <- bin.vec[-1]
 
 # new.threshold <- boxplot.stats(plot.df$Change[plot.df$DI.bin==1])$stats[5]
 # # 
@@ -104,55 +111,56 @@ levels(plot.df$DI.bin) <- seq(0.1,7,by=0.1)
 plot.df <- plot.df[!is.na(plot.df$Change),]
 plot.df$DI.level <- as.character(plot.df$DI.bin)
 plot.df$DI.level <- as.factor(plot.df$DI.level)
+plot.df$lai.frac <- (plot.df$Change.ng / plot.df$Change)
 # vioplot(Change~DI.bin,data = plot.df)
 # vioplot(plot.df$Change[plot.df$DI.bin==6])
 
-elevate.df <- input.df[!is.na(input.df$elevated_hz),]
-elevate.df$pet <- extract(pet.ra,cbind(elevate.df$lon,elevate.df$lat))
-elevate.df$DI <- elevate.df$pet / elevate.df$map 
-elevate.df$DI.bin <- cut(elevate.df$DI,breaks = seq(0,7,by=0.5))
-levels(elevate.df$DI.bin) <- seq(0,7,by=0.5)
-elevate.df$DI.bin <- droplevels(elevate.df$DI.bin)
+# elevate.df <- input.df[!is.na(input.df$elevated_hz),]
+# elevate.df$pet <- extract(pet.ra,cbind(elevate.df$lon,elevate.df$lat))
+# elevate.df$DI <- elevate.df$pet / elevate.df$map 
+# elevate.df$DI.bin <- cut(elevate.df$DI,breaks = seq(0,7,by=0.5))
+# levels(elevate.df$DI.bin) <- seq(0,7,by=0.5)
+# elevate.df$DI.bin <- droplevels(elevate.df$DI.bin)
+# 
+# elevate.df$hz.ele <- as.numeric(as.character(elevate.df$elevated_hz))
+# elevate.df <- elevate.df[elevate.df$hz.ele != 0,]
+# elevate.df <- elevate.df[,c("hz.ele","DI.bin",'DI')]
+# plot(hz.ele~DI.bin,data = elevate.df,pch='.',xlab='DI',
+#      ylab='Current probability')
+# plot(hz.ele~DI,data = elevate.df,pch='.',xlab='DI',
+#      ylab='Current probability',xlim=c(0,7))
 
-elevate.df$hz.ele <- as.numeric(as.character(elevate.df$elevated_hz))
-elevate.df <- elevate.df[elevate.df$hz.ele != 0,]
-elevate.df <- elevate.df[,c("hz.ele","DI.bin",'DI')]
-plot(hz.ele~DI.bin,data = elevate.df,pch='.',xlab='DI',
-     ylab='Current probability')
-plot(hz.ele~DI,data = elevate.df,pch='.',xlab='DI',
-     ylab='Current probability',xlim=c(0,7))
 
-
-vioplot(hz.ele~DI.bin,data = elevate.df[!is.na(elevate.df$DI.bin),])
+# vioplot(hz.ele~DI.bin,data = elevate.df[!is.na(elevate.df$DI.bin),])
 # 
 plot.df$DI.level <- droplevels(plot.df$DI.level)
 plot.df$p.val <- NA 
-for (f.i in seq_along(levels(plot.df$DI.bin))) {
-  plot.sub.df <- plot.df[
-    plot.df$DI.bin==levels(plot.df$DI.bin)[f.i],]
-
-  
-  if(nrow(plot.sub.df)>3){
-    test.t.out <- t.test(plot.sub.df$Change)
-    
-    plot.df$p.val[plot.df$DI.bin ==
-                    levels(plot.df$DI.bin)[f.i]]<- test.t.out$p.value
-  }
-  
-}
-
-sig.df <- plot.df[,c('DI.bin','p.val')]
-sig.df <- sig.df[!duplicated(sig.df),]
-sig.df <- sig.df[complete.cases(sig.df),]
+# for (f.i in seq_along(levels(plot.df$DI.bin))) {
+#   plot.sub.df <- plot.df[
+#     plot.df$DI.bin==levels(plot.df$DI.bin)[f.i],]
+# 
+#   
+#   if(nrow(plot.sub.df)>3){
+#     test.t.out <- t.test(plot.sub.df$Change)
+#     
+#     plot.df$p.val[plot.df$DI.bin ==
+#                     levels(plot.df$DI.bin)[f.i]]<- test.t.out$p.value
+#   }
+#   
+# }
+# 
+# sig.df <- plot.df[,c('DI.bin','p.val')]
+# sig.df <- sig.df[!duplicated(sig.df),]
+# sig.df <- sig.df[complete.cases(sig.df),]
 
 # TukeyHSD(aov(Change~DI.level,data = plot.df))
 # 
 
-boxplot.stats(plot.df$Change.ng[plot.df$DI<2& plot.df$DI>0.75])$stats
+# boxplot.stats(plot.df$Change.ng[plot.df$DI<2& plot.df$DI>0.75])$stats
 dens=density(1/wi.vic.lcm,from=0, to=7)
-
-pdf('figures/Climate and veg.pdf',width = 8,height = 2*6*.618)
-par(mfrow=c(2,1),mar=c(5,5,1,1))
+#######
+pdf('figures/Climate and veg.pdf',width = 8,height = 3*8*.618)
+par(mfrow=c(3,1),mar=c(5,5,1,1))
 par(mar=c(1,5,4,1))
 plot(current.val~DI.bin,data = plot.df,pch='.',xaxt='n',xlab=' ',
      ylab='Current probability',
@@ -161,26 +169,41 @@ legend('topleft',legend = '(a)',bty='n')
 # 
 par(mar=c(4,5,1,1))
 plot(Change~DI.bin,data = plot.df,pch='.',xaxt='n',yaxt='n',xlab='DI',
-     ylim=c(-0.2,0.3),xlim=c(0,70))
+     ylim=c(-0.2,0.4),xlim=c(0,70))
 axis(side = 1,at = seq(0.5,6.5,by=0.5) * 10 ,
      labels = seq(0.5,6.5,by=0.5))
-axis(side = 2,at = seq(0,0.3,by=0.1),
-     labels = seq(0,0.3,by=0.1))
+axis(side = 2,at = seq(-0.1,0.3,by=0.1),
+     labels = seq(-0.1,0.3,by=0.1))
 abline(h=0,col='grey10')
-# 
-
-plot(Change.ng~DI.bin,
-     data = plot.df,ylab='Change of probability',
-     pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen',yaxt='n')
 legend('topleft',legend = '(b)',bty='n')
-par(new=T)
-plot(dens$x * 10,
-     dens$y,
-     type="l",col='coral',lwd=2,
-     xlim=c(0,70),
-     ann=F,axes=F,ylim=c(0,5))
-axis(side = 2,at = c(0,1),
-     labels = c(0,1),col='coral',col.axis = 'coral')
+
+par(mar=c(4,5,1,1))
+# 
+# plot(abs(lai.frac)~DI,plot.df,ylim=c(0,3),pch=16,cex=.3,col=rgb(1,0.3,0.1,0.2))
+change.ra <- (change.ra.vic.noveg/get.small.area.func(future.ra,shape.vic))
+
+change.ra[change.ra>3] <- NA
+change.ra[change.ra< -3] <- NA
+palette(c('navy','grey60','grey40','coral','#aa381e'))
+brk.vec <- seq(-10,15,by=5)
+plot(change.ra*100,legend=F,breaks = brk.vec,col=palette(),
+     xlab='Longitude',ylab='Latitude')
+legend('topright',legend = paste0('< ',brk.vec[-1],'%'),
+       col=palette(),pch=15,bty='n')
+legend('topleft',legend = '(c)',bty='n')
+# plot(change.ra.vic.noveg)
+# plot(Change.ng~DI.bin,
+#      data = plot.df,ylab='Change of probability',
+#      pch='.',xaxt='n',xlab='DI',add=T,col='forestgreen',yaxt='n')
+# 
+# par(new=T)
+# plot(dens$x * 10,
+#      dens$y,
+#      type="l",col='coral',lwd=2,
+#      xlim=c(0,70),
+#      ann=F,axes=F,ylim=c(0,5))
+# axis(side = 2,at = c(0,1),
+#      labels = c(0,1),col='coral',col.axis = 'coral')
 dev.off()
 # par(new=T)
 # hist(wi.vic.lcm,xlim=c(0.5,6.5),main='',xlab='',
@@ -189,6 +212,20 @@ dev.off()
 # sig.df$position <- 0.3
 # points(position~(DI.bin),data = sig.df[sig.df$p.val<0.01,],
 #        pch='*')
-
-
-
+# library(doBy)
+# sum.plot.df <- summaryBy(Change + Change.ng~DI.bin,data = plot.df,
+#                          FUN=c(mean,sd),na.rm=T)
+# barplot(Change.mean~DI.bin,data = sum.plot.df,col='lightskyblue',ylim=c(-0.05,0.3))
+# 
+# barplot(Change.ng.mean~DI.bin,data = sum.plot.df,add=T,col='forestgreen')
+# 
+# plot(Change~DI,data = plot.df,pch=16,cex=0.5)
+# 
+# 
+# 
+hist(plot.df$lai.frac[plot.df$lai.frac <3 & plot.df$lai.frac > -3],freq=F)
+# nrow(plot.df[plot.df$lai.frac>0.2,])/nrow(plot.df)
+# 
+# dens=density(plot.df$lai.frac[!is.na(plot.df$lai.frac)],from=-0.3, to=1.5,kernel = "gaussian")
+# 
+# plot(lai.frac)
