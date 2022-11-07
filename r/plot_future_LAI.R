@@ -100,8 +100,10 @@ plot(mean.ra.hist,
      breaks = break.vec,
      col=rev(topo.colors(length(break.vec)-1)),
      box=FALSE,bty='n')
+myText = bquote((g)~Current~LAI~(m^2*m^-2))
 
-legend('topleft',legend = '(g) LAI-current',bty='n')
+legend('topleft',legend = myText,bty='n')
+
 # b
 break.vec <- seq(0,1.2,by=0.2)
 mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
@@ -111,5 +113,5 @@ plot((mean.ra.85.long-mean.ra.hist),main = '',
      col=rev(hcl.colors(length(break.vec)-1)),
      box=FALSE,bty='n')
 
-legend('topleft',legend = '(h) LAI-2100 RCP8.5',bty='n')
+legend('topleft',legend = '(h) Change in the future',bty='n')
 dev.off()

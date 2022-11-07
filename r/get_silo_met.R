@@ -28,11 +28,20 @@ for (year.i in 1994:2018){
                 destfile = tmax.fn.out,cacheOK=FALSE,method = 'curl')
 }
 
-dir.create('data/met/pet_silo/')
+# dir.create('data/met/pet_silo/')
+# for (year.i in 1994:2018){
+#   tmax.fn <- sprintf('https://s3-ap-southeast-2.amazonaws.com/silo-open-data/annual/evap_pan/%s.evap_pan.nc',
+#                      year.i)
+#   tmax.fn.out <- sprintf('data/met/pet_silo/evap_pan.%s.nc',year.i)
+#   download.file(tmax.fn,
+#                 destfile = tmax.fn.out,cacheOK=FALSE,method = 'curl')
+# }
+                     
+dir.create('data/met/vpd_silo/')
 for (year.i in 1994:2018){
-  tmax.fn <- sprintf('https://s3-ap-southeast-2.amazonaws.com/silo-open-data/annual/evap_pan/%s.evap_pan.nc',
+  tmax.fn <- sprintf('https://s3-ap-southeast-2.amazonaws.com/silo-open-data/Official/annual/vp_deficit/%s.vp_deficit.nc',
                      year.i)
-  tmax.fn.out <- sprintf('data/met/pet_silo/evap_pan.%s.nc',year.i)
+  tmax.fn.out <- sprintf('data/met/vpd_silo/vpd.%s.nc',year.i)
   download.file(tmax.fn,
                 destfile = tmax.fn.out,cacheOK=FALSE,method = 'curl')
 }

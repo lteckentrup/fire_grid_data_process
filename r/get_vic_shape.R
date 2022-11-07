@@ -1,10 +1,10 @@
+# install_github("https://github.com/ropensci/rnaturalearthhires")
 library(rnaturalearth)
 au_map <- ne_states(country = "Australia", 
                     returnclass = "sf")
 vic_map <- au_map[7,]$geometry
 # plot(raster(vic_map))
 shape.vic<- sf::as_Spatial(vic_map)
-
 
 # 
 get.small.area.func <- function(ra.in,p = p){

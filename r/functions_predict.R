@@ -38,6 +38,7 @@ predict.rf.func <- function(model.in,
   # }
 }
 
+
 # x.df <- predict(object = model.in,newdata=df,type='vote')
 # x.prob.df <- predict(object = model.in,newdata=df,type='prob')
 #function to predict with cmip clim#### 
@@ -136,6 +137,104 @@ predict.rf.cmip.func <- function(path.nm,model.path,out.nm){
   saveRDS(list(val = score.ra,
                prob = prob.m.ls),paste0(path.nm,'/',out.nm))
 }
+
+predict.rf.cmip.season.test.func <- function(path.nm,
+                                             model.path,out.nm,
+                                             rain.season.path = 'cache/pr_seaonality_history.rds'){
+  # # read inputs####
+  # read met
+  # tmax.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_tmax.rds')[[1]]
+  # pr.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_pr.rds')[[1]]
+  # rh.ra <- readRDS('data/met/future/ACCESS1-0/rcp45_mid/rcp45_20452060_monthly_rh.rds')[[1]]
+  # path.nm <-  'data/met/future/ACCESS1-0/rcp45_mid/'
+  
+  tmax.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_tmax.rds',full.names = T))[[1]]
+  pr.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_pr.rds',full.names = T))[[1]]
+  rh.ra <- readRDS(list.files(path = path.nm,pattern = '_monthly_rh.rds',full.names = T))[[1]]
+  
+  tmax.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_tmax.rds',full.names = T))
+  pr.mean.ra <- readRDS(list.files(path = path.nm,pattern = '_annual_pr.rds',full.names = T))
+  
+  # read proper rainfall seasonality
+  is.his <- grep(x = path.nm,pattern = 'history')
+  is.45.mid <- grep(x = path.nm,pattern = 'rcp45_mid')
+  is.45.long <- grep(x = path.nm,pattern = 'rcp45_long')
+  is.85.mid <- grep(x = path.nm,pattern = 'rcp85_mid')
+  is.85.long <- grep(x = path.nm,pattern = 'rcp85_long')
+  
+  # if(length(is.his)>0){
+    pr.season.ra <- readRDS(rain.season.path)
+  # }else if(length(is.45.mid)>0){
+  #   pr.season.ra <- readRDS('cache/pr_seaonality_rcp45_mid.rds')
+  # }else if(length(is.45.long)>0){
+  #   pr.season.ra <- readRDS('cache/pr_seaonality_rcp45_long.rds')
+  # }else if(length(is.85.long)>0){
+  #   pr.season.ra <- readRDS('cache/pr_seaonality_rcp85_long.rds')
+  # }else if(length(is.85.mid)>0){
+  #   pr.season.ra <- readRDS('cache/pr_seaonality_rcp85_mid.rds')
+  # }else{
+  #   stop('did not find rainfall seasonality for the RCP')
+  # }
+  
+  # read lai
+  # lai.ra <- readRDS(paste0(path.nm,'_lai_jan_5km.rds'))
+  lai.ra <- readRDS(list.files(path = path.nm,pattern = '_lai_jan_5km.rds',full.names = T))
+  model.rf <- readRDS(model.path)#'cache/rf.fit.hz.surface.rds'
+  # model.rf <- readRDS('cache/rf.fit.hs.elevated.rds')#
+  
+  # get predicted probability
+  prob.m <- try(predict.rf.func(model.in = model.rf,
+                                s.den=matrix(soil.den),#s.ph=matrix(soil.ph),
+                                s.clay= matrix(soil.clay),
+                                rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                                wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                                tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                                tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
+                                lai.opt.mean = matrix(lai.ra),
+                                giveProb = T))
+  # get predicted value
+  rf.m <- predict.rf.func(model.in = model.rf,
+                          s.den=matrix(soil.den),#s.ph=matrix(soil.ph),
+                          s.clay= matrix(soil.clay),
+                          rad.jan = matrix(rad.jan),rad.jul = matrix(rad.jul),
+                          wi = matrix(wi.ra),c.profile = matrix(c.small),c.plan = matrix(c.plan.ra),
+                          tmax = matrix(tmax.ra),rain = matrix(pr.ra),rh.min = matrix(rh.ra),
+                          tmax.mean = matrix(tmax.mean.ra),map = matrix(pr.mean.ra),pr.seaonality = matrix(pr.season.ra),
+                          lai.opt.mean = matrix(lai.ra),giveProb = F)
+  
+  # save prediction
+  var.m <- matrix(as.numeric(as.character(rf.m)),
+                  ncol = ncol(soil.den),
+                  nrow = nrow(soil.den),byrow = T)
+  
+  
+  score.ra <-raster(var.m)
+  extent(score.ra) <- extent(soil.den)
+  # save prob
+  if(class(prob.m)[1] != 'try-error'){
+    
+    layer.nm <- colnames(prob.m)
+    prob.m.ls <- list()
+    for (lay.i in seq_along(layer.nm)) {
+      prob.m.i <- matrix(prob.m[,layer.nm[lay.i]],
+                         ncol = ncol(soil.den),
+                         nrow = nrow(soil.den),byrow = T)
+      prob.ra <-raster((prob.m.i))
+      extent(prob.ra) <- extent(soil.den)
+      # plot(prob.ra)
+      
+      prob.m.ls[[lay.i]] <- prob.ra
+      
+    }
+    names(prob.m.ls) <- layer.nm
+    
+  }else{
+    prob.m.ls <- NA
+  }
+  
+  saveRDS(list(val = score.ra,
+               prob = prob.m.ls),paste0(path.nm,'/rain.season.',out.nm))
+}
 # wrap func####
 wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   # # # where.is.data <- 'data/met/future/access/rcp45_20452060'
@@ -148,10 +247,10 @@ wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   # # my.fun(path.nm = where.is.data,
   # #        model.path = 'cache/rf.fit.ns.height.rds',
   # #        out.nm = '_height_ns.rds')
-  # # 3. hz ele
-  # my.fun(path.nm = where.is.data,
-  #        model.path = 'cache/rf.fit.hs.elevated.rds',
-  #        out.nm = '_hz_elevated.rds')
+  # 3. hz ele
+  my.fun(path.nm = where.is.data,
+         model.path = 'cache/rf.fit.hs.elevated.rds',
+         out.nm = '_hz_elevated.rds')
   # 
   # # # 4. hz bark
   # # my.fun(path.nm = where.is.data,
@@ -166,9 +265,9 @@ wrap.predic.func <- function(where.is.data,my.fun = predict.rf.cmip.func){
   # my.fun(path.nm = where.is.data,
   #        model.path = 'cache/rf.fit.hz.surface.rds',
   #        out.nm = '_hz_surface.rds')
-  # # 7. ft surface
-  my.fun(path.nm = where.is.data,
-         model.path = 'cache/rf.fit.fuelType.new.rds',
-         out.nm = '_fuelType.rds')
+  # # # 7. ft surface
+  # my.fun(path.nm = where.is.data,
+  #        model.path = 'cache/rf.fit.fuelType.new.rds',
+  #        out.nm = '_fuelType.rds')
 }
 

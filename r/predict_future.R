@@ -2,8 +2,8 @@ library(raster)
 source('r/functions_predict.R')
 # read
 met.path.vec <- list.dirs('data/met/future/',recursive = T)
-rcp45.index <- NULL#grep('rcp45',met.path.vec)
-rcp85.index <- NULL#grep('rcp85',met.path.vec)
+rcp45.index <- grep('rcp45',met.path.vec)
+rcp85.index <- grep('rcp85',met.path.vec)
 hist.index <- grep('history',met.path.vec)
 fn.vec.chosen <- met.path.vec[c(rcp45.index,rcp85.index,hist.index)]
 # fn.vec.chosen <- met.path.vec[c(hist.index)]
@@ -12,7 +12,7 @@ fn.vec.chosen <- met.path.vec[c(rcp45.index,rcp85.index,hist.index)]
 
 # fn.vec.chosen <- fn.vec.chosen[grep('rcp85_long',fn.vec.chosen)]
 library(randomForest)
-sapply(fn.vec.chosen,wrap.predic.func)
+sapply(fn.vec.chosen,wrap.predic.func,my.fun = predict.rf.cmip.season.test.func)
 
 # wrap.predic.func('data/met/future/ACCESS1-0/maca_VIC_ACCESS1-0_historical/')
 # 

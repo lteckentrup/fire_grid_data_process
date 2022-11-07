@@ -451,7 +451,7 @@ wrap.plot.rcp.prob.func <- function(var.in.nm,
   if(if.x.axis){
     axis(side = 1,at =seq(140,150,by=1),labels = seq(140,150,by=1))
   }
-  legend('topleft',legend = sprintf('(%s)',legend.in[1]),bty='n')
+  # legend('topleft',legend = sprintf('(%s)',legend.in[1]),bty='n')
   # # b
   # par(mar=c(1,1,1,3))
   # diff.rcp45_mid.mean_noVeg <- mask(diff.rcp45_mid.mean_noVeg, shape.vic)
@@ -493,18 +493,22 @@ plot.prob.future.change.func <- function(par.name,l.in,if.x.axis){
   wrap.plot.rcp.prob.func(var.in.nm = par.name,
                           rcp.in= 'rcp45_mid',
                           legend.in = letters[1],if.y.axis = T)
+  legend('topleft',legend = c('(a) RCP4.5: 2045-2060 minus 2000-2015'),bty='n')
   # rcp45-long
   wrap.plot.rcp.prob.func(var.in.nm = par.name,
                           rcp.in= 'rcp45_long',
                           legend.in = letters[2])
+  legend('topleft',legend = c('(b) RCP4.5: 2085-2100 minus 2000-2015'),bty='n')
   # rcp85-Mid
   wrap.plot.rcp.prob.func(var.in.nm = par.name,
                           rcp.in= 'rcp85_mid',
                           legend.in = letters[3],
                           if.y.axis = T,
                           if.x.axis = if.x.axis)
+  legend('topleft',legend = c('(c) RCP8.5: 2045-2060 minus 2000-2015'),bty='n')
   # rcp85-long
   wrap.plot.rcp.prob.func(var.in.nm = par.name,
                           rcp.in= 'rcp85_long',
                           legend.in = letters[4],if.x.axis = if.x.axis)
+  legend('topleft',legend = c('(d) RCP8.5: 2085-2100 minus 2000-2015'),bty='n')
 }

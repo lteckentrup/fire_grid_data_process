@@ -2,11 +2,15 @@
 # pr.ra <- readRDS(file = 'data/met/future/ACCESS1-0/history/history_20002015_annual_pr.rds')
 # rh.ra <- readRDS(file = 'data/met/future/ACCESS1-0/history/history_20002015_annual_rh.rds')
 
-tmax.mean.ra <- readRDS(file = 'data/met/future/ACCESS1-0/history/history_20002015_annual_tmax.rds')
-pr.mean.ra <- readRDS(file = 'data/met/future/ACCESS1-0/history/history_20002015_annual_pr.rds')
-pr.season.ra <- readRDS('cache/pr_seaonality_history.rds')
+t.path <- 'data/met/future/ACCESS1-0/rcp85_long/rcp85_20852100_annual_tmax.rds'
+map.path <- 'data/met/future/ACCESS1-0/rcp85_long/rcp85_20852100_annual_pr.rds'
+pr.season.path <- 'data/met/future/ACCESS1-0/rcp85_long/rcp85_20852100_pr_seasonality.rds'
+lai.path <- 'data/met/future/ACCESS1-0/rcp85_long/rcp85_20852100_lai_jan_5km.rds'
 
-lai.ra <- readRDS(file = 'data/met/future/ACCESS1-0/history/history_20002015_lai_jan_5km.rds')
+tmax.mean.ra <- readRDS(file = t.path)
+pr.mean.ra <- readRDS(file = map.path)
+pr.season.ra <- readRDS(pr.season.path)
+lai.ra <- readRDS(file = lai.path)
 
 
 # 
