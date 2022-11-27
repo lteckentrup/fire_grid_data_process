@@ -8,15 +8,14 @@ ft.in.df <- readRDS('cache/ft.met.lai.rds')
 
 fuel.name.lut <- read.csv('fuelName.csv')
 fuel.name.lut <- fuel.name.lut[fuel.name.lut$new_nm != '',]
-######remove non natual types##########
-evc.df <- raster('data/EVC_fuelType/evc/VICSANSW161.tif')
 
-atrribute.df <- evc.df@data@attributes[[1]]
-atrribute.df <- atrribute.df[,c('VICSANSW.FUEL_TYPE' , 'VICSANSW.TYPE_NAME')]
-nm.vec <- atrribute.df$VICSANSW.TYPE_NAME[atrribute.df$VICSANSW.FUEL_TYPE %in%
-                                            unique(ft.in.df$ft)]
-ft.nm.df <- data.frame(nm = atrribute.df$VICSANSW.TYPE_NAME[atrribute.df$VICSANSW.FUEL_TYPE %in%
-                                                              unique(ft.in.df$ft)],
+######remove non natual types##########
+atrribute.df <- foreign::read.dbf('data/EVC_fuelType/evc/VICSANSW161.tif.vat.dbf')
+
+nm.vec <- atrribute.df$TYPE_NAME[atrribute.df$FUEL_TYPE %in%
+                                   unique(ft.in.df$ft)]
+
+ft.nm.df <- data.frame(nm = nm.vec,
                        ID = unique(ft.in.df$ft))
 
 ID.natue <- ft.nm.df$ID[!ft.nm.df$nm %in% c('Eaten Out Grass','Orchard / Vineyard',
