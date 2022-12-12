@@ -1,21 +1,17 @@
-rf.fit.ft <- readRDS('cache/rf.fit.fuelType.rds')
-rf.fit.canopy.h <- readRDS('cache/rf.fit.canopy.height.rds')
-varImpPlot(rf.fit.canopy.h,type=1)
-rf.fit.ns.h <- readRDS('cache/rf.fit.ns.height.rds')
-# varImpPlot(rf.fit.ns.h)
-# 
-# model.path <- ('cache/rf.fit.hz.bark.rds')
-rf.fit.ns.hz <- readRDS('cache/rf.fit.hz.ns.rds')
-rf.fit.elevated.hz <- readRDS('cache/rf.fit.hs.elevated.rds')
-# rf.fit.elevated.hz$confusion
-rf.fit.bark.hz <- readRDS('cache/rf.fit.hz.bark.rds')
-# rf.fit.bark.hz$confusion
-rf.fit.surface.hz <- readRDS('cache/rf.fit.hz.surface.rds')
+### Increase memory: run ulimit -s 32768 from command line
+library(randomForest)
 
-# 
+### Read in fitted RF for fueltype shortlist 
+rf.fit.ft <- readRDS('../cache/rf.fit.fuelType.new.short.rds')
+
+### Calculate variable importance of RF
+varImpPlot(rf.fit.ft)
+
+### Define new varImpPlot function (???) why
 varImpPlot <- function (x, sort = TRUE, n.var = min(30, nrow(x$importance)), 
           type = NULL, class = NULL, scale = TRUE, main = deparse(substitute(x)), 
           ...) 
+          
 {
   if (!inherits(x, "randomForest")) 
     stop("This function only works for objects of class `randomForest'")
@@ -87,37 +83,10 @@ plot.importance.func <- function(rf.fit.ft,
 
 pdf('figures/importance.pdf',width = 5*2,height = 5*3)
 par(mfrow=c(3,2),mar=c(5,5,1,1))
-# # 1
-# plot.importance.func(rf.fit.ft = rf.fit.ft,
-#                      l.out.1 = '(a) Fuel type',
-#                      l.out.2 = "(b)")
-# # 2
-# plot.importance.func(rf.fit.ft = rf.fit.canopy.h,
-#                      l.out.1 = '(c) Elevated height',
-#                      l.out.2 = "(d)")
 
-# # 3
-# plot.importance.func(rf.fit.ft = rf.fit.ns.h,
-#                      l.out.1 = '(e) Near surface height',
-#                      l.out.2 = "(f)")
-
-# 4
-plot.importance.func(rf.fit.ft = rf.fit.elevated.hz,
-                     l.out.1 = '(a) Elevated hazard score',
+# 1
+plot.importance.func(rf.fit.ft = rf.fit.ft,
+                     l.out.1 = '(a) Fuel type',
                      l.out.2 = "(b)")
 
-# 5
-plot.importance.func(rf.fit.ft = rf.fit.ns.hz,
-                     l.out.1 = '(c) Near surface hazard score',
-                     l.out.2 = "(d)")
-
-# # 6
-# plot.importance.func(rf.fit.ft = rf.fit.bark.hz,
-#                      l.out.1 = '(k) Bark hazard score',
-#                      l.out.2 = "(l)")
-
-# 7
-plot.importance.func(rf.fit.ft = rf.fit.bark.hz,
-                     l.out.1 = '(e) Surface hazard score',
-                     l.out.2 = "(f)")
 dev.off()
