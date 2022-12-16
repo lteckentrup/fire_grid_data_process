@@ -17,10 +17,10 @@ plot.importance.func <- function(rf.fit.ft) {
 
   # Change predictor names
   row.names(imp) <- c('Rainfall seaonality', 'MAP', 'Mean Tmax', 'Minimum RH',
-                        'Tmax', 'Precipitation', 'Solar radiation (Jan)',
-                        'Soil bulk density', 'Solar radiation (Jul)',
-                        'Optimal LAI', 'Plan curvature', 'Profile curvature',
-                        'Wetness index', '% clay')[1:nrow(imp)]
+                      'Tmax', 'Precipitation', 'Solar radiation (Jan)',
+                      'Soil bulk density', 'Solar radiation (Jul)',
+                      'Optimal LAI', 'Plan curvature', 'Profile curvature',
+                      'Wetness index', '% clay')[1:nrow(imp)]
 
   # Plot the importance of each variable; sort values
   varImpPlot(rf.fit.ft, main = paste(colnames(imp)[1], "vs", colnames(imp)[2]),
