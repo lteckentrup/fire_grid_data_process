@@ -53,8 +53,10 @@ scenarios <- c("RCP4.5 (2045-2060)",
                "RCP8.5 (2085-2100)")
 
 # Rasters to plot
-rasters <- list(mean.ra.45.mid - mean.ra.hist, mean.ra.45.long - mean.ra.hist,
-                mean.ra.85.mid - mean.ra.hist, mean.ra.85.long - mean.ra.hist)
+rasters <- list(mean.ra.45.mid - mean.ra.hist, 
+                mean.ra.45.long - mean.ra.hist,
+                mean.ra.85.mid - mean.ra.hist, 
+                mean.ra.85.long - mean.ra.hist)
 
 # Color breaks for historical
 hist.breaks <- seq(0, 4.5, by = 0.5)
