@@ -23,73 +23,56 @@ read.climate.func <- function(var.in.nm, future_s, exclude.nm = 'noVeg') {
   return(raster.new)
 }
 
-# Read in the data for historical
-pr.hist <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
-                             future_s = 'history',
-                             exclude.nm = '')
+# Scenarios to read in
+scenarios <- c("history", "rcp45_mid", "rcp45_long", "rcp85_mid", "rcp85_long")
 
-# Calculate the mean value for each raster in the stack
-mean.ra.hist <- calc(pr.hist, fun = mean)
+# Names for output variables
+names <- c("mean.ra.hist", "mean.ra.45.mid", "mean.ra.45.long", 
+           "mean.ra.85.mid", "mean.ra.85.long")
 
-# Read in the data for the RCP4.5 mid-century scenario
-pr.rcp45.mid <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
-                                  future_s = 'rcp45_mid',
-                                  exclude.nm = '')
+# Loop through scenarios
+for (i in seq_along(scenarios)) {
+  
+  # Read in the data 
+  raster <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
+                              future_s = scenarios[i],
+                              exclude.nm = '')
 
-# Calculate the mean value for each raster in the stack
-mean.ra.45.mid <- calc(pr.rcp45.mid, fun = mean)
+  # Calculate the mean value for each raster in the stack
+  mean <- mean(raster)
 
-# Read in the data for the RCP4.5 end-of-century scenario
-pr.rcp45.long <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
-                                   future_s = 'rcp45_long',
-                                   exclude.nm = '')
+  # Assign the mean raster to the output variable
+  assign(names[i], mean)
+}
 
-# Calculate the mean value for each raster in the stack
-mean.ra.45.long <- calc(pr.rcp45.long, fun = mean)
-
-# Read in the data for the RCP8.5 mid-century scenario
-pr.rcp85.mid <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
-                                  future_s = 'rcp85_mid',
-                                  exclude.nm = '')
-
-# Calculate the mean value for each raster in the stack
-mean.ra.85.mid <- calc(pr.rcp85.mid, fun = mean)
-
-# Read in the data for the RCP8.5 end-of-century scenario
-pr.rcp85.long <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
-                                   future_s = 'rcp85_long',
-                                   exclude.nm = '')
-
-# Calculate the mean value for each raster in the stack
-mean.ra.85.long <- calc(pr.rcp85.long, fun = mean)
-
-# Define a vector of scenarios to plot
+# Define title names
 scenarios <- c("RCP4.5 (2045-2060)",
                "RCP4.5 (2085-2100)",
                "RCP8.5 (2045-2060)",
                "RCP8.5 (2085-2100)")
 
-# Define a vector of rasters to plot
+# Rasters to plot
 rasters <- list(mean.ra.45.mid - mean.ra.hist, mean.ra.45.long - mean.ra.hist,
                 mean.ra.85.mid - mean.ra.hist, mean.ra.85.long - mean.ra.hist)
 
-# Define a vector of color breaks for historical
+# Color breaks for historical
 hist.breaks <- seq(0, 4.5, by = 0.5)
 
-# Define a vector of color breaks for future scenarios
+# Color breaks for future scenarios
 fut.breaks <- seq(-0.6, 1.6, by = 0.3)
 
 # Open a PDF file
 pdf("future_LAI_new.pdf", width = 8, height = 7)
 
-# Plot historical scenario
+# Plot historical
 plot(mean.ra.hist, main = "Historical", breaks = hist.breaks,
      col = topo.colors(length(hist.breaks) - 1))
 
 vic(add = TRUE, col = "grey", lwd = 3)
 
-# Loop through the scenarios and rasters
+# Loop through the future scenarios and rasters
 for (i in seq_along(scenarios)) {
+  
   # Plot the difference between future scenarios and historical
   plot(rasters[[i]], main = paste(scenarios[i], " - Historical"),
        breaks = fut.breaks, col = topo.colors(length(fut.breaks) - 1))
