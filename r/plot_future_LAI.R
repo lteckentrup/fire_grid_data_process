@@ -1,6 +1,5 @@
 library(raster)
 library(oz)
-library(rnaturalearth)
 
 read.climate.func <- function(var.in.nm, future_s, exclude.nm = 'noVeg') {
   # Generate list of file names
@@ -53,9 +52,9 @@ scenarios <- c("RCP4.5 (2045-2060)",
                "RCP8.5 (2085-2100)")
 
 # Rasters to plot
-rasters <- list(mean.ra.45.mid - mean.ra.hist, 
+rasters <- list(mean.ra.45.mid - mean.ra.hist,
                 mean.ra.45.long - mean.ra.hist,
-                mean.ra.85.mid - mean.ra.hist, 
+                mean.ra.85.mid - mean.ra.hist,
                 mean.ra.85.long - mean.ra.hist)
 
 # Color breaks for historical
@@ -88,10 +87,7 @@ dev.off()
 #### Plot only historical LAI and the difference at the end of the century
 
 # Get shape of Victoria
-au_map <- ne_states(country = "Australia",
-                    returnclass = "sf")
-vic_map <- au_map[7,]$geometry
-shape.vic<- sf::as_Spatial(vic_map)
+source('../R/get_vic_shape.R')
 
 png('future_LAI.png',width = 800,height = 300)
 par(mfrow=c(1,2),mar=c(3,3,1,5))
