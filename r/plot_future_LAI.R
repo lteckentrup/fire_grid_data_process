@@ -1,5 +1,6 @@
 library(raster)
 library(oz)
+library(rnaturalearth)
 
 read.climate.func <- function(var.in.nm, future_s, exclude.nm = 'noVeg') {
   # Generate list of file names
@@ -27,13 +28,13 @@ read.climate.func <- function(var.in.nm, future_s, exclude.nm = 'noVeg') {
 scenarios <- c("history", "rcp45_mid", "rcp45_long", "rcp85_mid", "rcp85_long")
 
 # Names for output variables
-names <- c("mean.ra.hist", "mean.ra.45.mid", "mean.ra.45.long", 
+names <- c("mean.ra.hist", "mean.ra.45.mid", "mean.ra.45.long",
            "mean.ra.85.mid", "mean.ra.85.long")
 
 # Loop through scenarios
 for (i in seq_along(scenarios)) {
-  
-  # Read in the data 
+
+  # Read in the data
   raster <- read.climate.func(var.in.nm = 'lai_jan_5km.rds',
                               future_s = scenarios[i],
                               exclude.nm = '')
@@ -72,7 +73,7 @@ vic(add = TRUE, col = "grey", lwd = 3)
 
 # Loop through the future scenarios and rasters
 for (i in seq_along(scenarios)) {
-  
+
   # Plot the difference between future scenarios and historical
   plot(rasters[[i]], main = paste(scenarios[i], " - Historical"),
        breaks = fut.breaks, col = topo.colors(length(fut.breaks) - 1))
@@ -80,4 +81,38 @@ for (i in seq_along(scenarios)) {
 }
 
 # Close the PDF file
+dev.off()
+
+#### Plot only historical LAI and the difference at the end of the century
+
+# Get shape of Victoria
+au_map <- ne_states(country = "Australia",
+                    returnclass = "sf")
+vic_map <- au_map[7,]$geometry
+shape.vic<- sf::as_Spatial(vic_map)
+
+png('future_LAI.png',width = 800,height = 300)
+par(mfrow=c(1,2),mar=c(3,3,1,5))
+
+### Mask Victoria
+mean.ra.hist <- mask(mean.ra.hist, shape.vic)
+mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
+
+### First subplot: Historical
+break.vec <- seq(0,3,by=0.5)
+plot(mean.ra.hist,
+     breaks = break.vec,
+     col=rev(topo.colors(length(break.vec)-1)),
+     box=FALSE,bty='n')
+myText = bquote((g)~Historical~LAI~(m^2*m^-2))
+legend('topleft',legend = myText,bty='n')
+
+### Second subplot: Different at end of century for RCP8.5
+break.vec <- seq(0,1.2,by=0.2)
+plot((mean.ra.85.long-mean.ra.hist),main = '',
+     breaks = break.vec,
+     col=rev(hcl.colors(length(break.vec)-1)),
+     box=FALSE,bty='n')
+legend('topleft',legend = '(h) Change in the future',bty='n')
+
 dev.off()
