@@ -1,121 +1,110 @@
-#####
+library(raster)
+source('../R/get_vic_shape.R')
+
 read.climate.func <- function(var.in.nm,future_s,exclude.nm = 'noVeg'){
-  rcp45_mid.fn <- list.files(path = 'data/met/future/',
+  rcp45_mid.fn <- list.files(path = '../data/met/future/',
                              pattern = var.in.nm,recursive = T,full.names = T)
-  
+
   rcp45_mid.fn <- rcp45_mid.fn[!rcp45_mid.fn %in% grep(exclude.nm, rcp45_mid.fn)]
   rcp45_mid.fn <- rcp45_mid.fn[grep(future_s, rcp45_mid.fn)]
-  
+
   rcp45.mid.h.c <- sapply(rcp45_mid.fn, function(fn.in){
-    
+
     x <- readRDS(fn.in)
     return(x[[1]])
   })
-  
-  print(rcp45_mid.fn)
+
   raster.new = stack(rcp45.mid.h.c)
   return(raster.new)
 }
-'data/met/future/ACCESS1-0/history/history_20002015_monthly_tmax.rds'
-# ####
-pr.hist <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
-                             future_s =  'history',
-                             exclude.nm = '')
-mean.ra.hist <- calc(pr.hist, fun = mean)
 
+# Set up a vector with the values for future_s
+future_vec <- c('history', 
+                'rcp45_mid', 
+                'rcp45_long', 
+                'rcp85_mid', 
+                'rcp85_long')
 
-# 
-pr.rcp45.mid <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
-                                  future_s =  'rcp45_mid',
-                                  exclude.nm = '')
-mean.ra.45.mid <- calc(pr.rcp45.mid, fun = mean)
-# plot(mean.ra.2 - mean.ra.hist)
-# 
-pr.rcp45.long <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
-                                   future_s =  'rcp45_long',
-                                   exclude.nm = '')
-mean.ra.45.long<- calc(pr.rcp45.long, fun = mean)
-# plot(mean.ra.long - mean.ra.hist)
-# 
-pr.rcp85.mid <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
-                                  future_s =  'rcp85_mid',
-                                  exclude.nm = '')
-mean.ra.85.mid <- calc(pr.rcp45.mid, fun = mean)
-# 
-pr.rcp85.long <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
-                                   future_s =  'rcp85_long',
-                                   exclude.nm = '')
-mean.ra.85.long<- calc(pr.rcp85.long, fun = mean)
-# plot((mean.ra.85.long - mean.ra.hist))
-# 
-############
-pdf('figures/future_mon_tmax.pdf',width = 8,height = 7)
+# Set up a vector with the plot titles
+plot_titles <- c('Historical', 
+                 'RCP4.5 (2045 - 2060)', 
+                 'RCP4.5 (2085 - 2100)', 
+                 'RCP8.5 (2045 - 2060)', 
+                 'RCP8.5 (2085 - 2100)')
 
-# 
-mean.ra.hist <- mask(mean.ra.hist, shape.vic)
-break.vec <- seq(10,35,by=5)
-library(raster)
-plot(mean.ra.hist-275.25,main = ' Current',breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
+# Initialize a list to store the output from calc
+mean_ra_list <- list()
 
-# 
-mean.ra.45.mid <- mask(mean.ra.45.mid, shape.vic)
-break.vec <- seq(0,2,by=0.5)
-library(raster)
-plot((mean.ra.45.mid-mean.ra.hist),main = ' RCP4.5 (2045-2060) - Current',
-     breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-# library(oz)
-# vic(add=T,col='grey',lwd=3)
-# 
-# break.vec <- seq(20,160,by=20)
-mean.ra.45.long <- mask(mean.ra.45.long, shape.vic)
-library(raster)
-plot((mean.ra.45.long-mean.ra.hist),main = ' RCP4.5 (2085-2100) - Current',
-     breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-# library(oz)
-# vic(add=T,col='grey',lwd=3)
-# 
-# break.vec <- seq(20,160,by=20)
-mean.ra.85.mid <- mask(mean.ra.85.mid, shape.vic)
-library(raster)
-plot((mean.ra.85.mid-mean.ra.hist),main = ' RCP8.5 (2045-2060) - Current',
-     breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-# library(oz)
-# vic(add=T,col='grey',lwd=3)
-# 
-break.vec <- seq(2,4,by=0.5)
-mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
-library(raster)
-plot((mean.ra.85.long-mean.ra.hist),main = ' ',
-     breaks = break.vec,col=(topo.colors(length(break.vec)-1)))
-# library(oz)
-# vic(add=T,col='grey',lwd=3)
+# Loop through the values in future_vec
+for(i in 1:length(future_vec)) {
+
+  # Read data
+  pr <- read.climate.func(var.in.nm = 'monthly_tmax.rds',
+                         future_s = future_vec[i],
+                         exclude.nm = '')
+
+  # Calculate the mean
+  mean_ra <- calc(pr, fun = mean)
+
+  # Mask data and add to data list
+  mean_ra_list[[future_vec[i]]] <- mask(mean_ra, shape.vic)
+}
+
+# Set up breaks for the plots
+break_vec <- seq(10,35,by=5)
+
+# Open the PDF file
+pdf('future_mon_tmax_new.pdf',width = 8,height = 7)
+
+# Plot the current data
+plot(mean_ra_list[['history']] - 273.15, main = plot_titles[1],
+     breaks = break_vec, col = topo.colors(length(break_vec)-1))
+
+# Loop through the remaining values in future_vec
+for(i in 2:length(future_vec)) {
+
+  # Set breaks for each plot
+  if(future_vec[i] %in% c('rcp45_mid', 'rcp45_long', 'rcp85_mid')) {
+    break_vec <- seq(0.5,2.5,by=0.5)
+  } else {
+    break_vec <- seq(2,4,by=0.5)
+  }
+
+  # Plot the data
+  plot((mean_ra_list[[future_vec[i]]] - mean_ra_list[['history']]),
+        main = paste(plot_titles[i], ' - Historical'), breaks = break_vec,
+        col = topo.colors(length(break_vec)-1))
+}
+
+# Close the PDF file
 dev.off()
-# plot only the end of century#######
-png('figures/future_tmax.png',width = 800,height = 300)
-par(mfrow=c(1,2),mar=c(3,3,1,5))
 
-# a
-mean.ra.hist <- mask(mean.ra.hist, shape.vic)
-break.vec <- seq(10,35,by=5)
+### Only plot historical and end of century RCP8.5
+png('future_tmax_new.png', width=800, height=300)
+par(mfrow=c(1,2), mar=c(3,3,1,5))
 
-plot(mean.ra.hist-275.25,
-     breaks = break.vec,
-     col=(topo.colors(length(break.vec)-1)),
-     box=FALSE,bty='n',
+# Set up breaks for historical
+break.vec <- seq(10, 35, by=5)
+
+# Plot historical data
+plot(mean_ra_list[['history']] - 273.15,
+     breaks=break.vec,
+     col=topo.colors(length(break.vec)-1),
+     box=FALSE, bty='n',
      xaxt='n')
 
-myText = bquote((a)~Current~mean~T[max]~(degree*C))
+legend('topleft', legend=bquote((a)~Current~mean~T[max]~(degree*C)), bty='n')
 
-legend('topleft',legend = myText,bty='n')
-# b
-break.vec <- seq(2,4,by=0.5)
-mean.ra.85.long <- mask(mean.ra.85.long, shape.vic)
+# Set up breaks for RCP8.5
+break.vec <- seq(2, 4, by=0.5)
 
-plot((mean.ra.85.long-mean.ra.hist),main = '',
-     breaks = break.vec,
-     col=(heat.colors(length(break.vec)-1)),
-     box=FALSE,bty='n',
-     xaxt='n')
+# Plot change at the end of the century
+plot((mean_ra_list[['rcp85_long']] - mean_ra_list[['history']]),
+      main='',
+      breaks=break.vec,
+      col=heat.colors(length(break.vec)-1),
+      box=FALSE, bty='n',
+      xaxt='n')
 
-legend('topleft',legend = '(b) Change in the future',bty='n')
+legend('topleft', legend='(b) Change in the future', bty='n')
 dev.off()
