@@ -33,6 +33,7 @@ low_flammability_shrublands = [3001,3003,3010,3023]
 noncombustible = [3047]
 mallees = [3025,3026,3027,3028,3048,3049,3050,3051]
 
+### Store broad fuel type groups in new dataframe
 df_broad = df.copy()
 df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
                                                 2 if x in dry_forests_woodlands else
