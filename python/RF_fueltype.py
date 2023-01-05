@@ -92,6 +92,7 @@ def rf_function(dataframe,n_est):
     import shap
     explainer = shap.Explainer(clf.predict, X_test)
     shap_values = explainer(X_test)
+    shap.summary_plot(shap_values, plot_type='violin')
     '''
             
     ### Calculate maximum depth of tree
