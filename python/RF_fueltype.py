@@ -16,8 +16,8 @@ import numpy as np
 
 ### List of relevant fuel types ?? why are all grasslands excluded?
 fueltypes = [3001, 3002, 3003, 3005, 3006, 3007, 3008, 3009, 3010, 3011,
-            3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
-            3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
+             3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
+             3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
 
 ### Read in features + target
 df = pd.read_csv('ft.met.lai.csv')
@@ -26,11 +26,17 @@ df = pd.read_csv('ft.met.lai.csv')
 df = df[df['ft'].isin(fueltypes)].dropna()
 
 ### Generate dataframe with broad fuel groups
+### Wet forests
 df_broad = df.replace([3002,3006,3007,3011,3012,3013,3015],1)
+### Dry forests, woodlands
 df_broad = df_broad.replace([3005,3008,3009,3022,3043],2)
+### Shrublands with high flammability (?)
 df_broad = df_broad.replace([3014,3021,3024,3029],3)
+### Shrublands with low flammability (?)
 df_broad = df_broad.replace([3001,3003,3010,3023],4)
+### Not combustible
 df_broad = df_broad.replace([3047],5)
+### Mallees
 df_broad = df_broad.replace([3025,3026,3027,3028,3048,3049,3050,3051],6)
 
 def rf_function(dataframe):
@@ -43,7 +49,7 @@ def rf_function(dataframe):
     ### Select target      
     y = dataframe['ft']
 
-    ### Select seed following Jim
+    ### Select seed (following Jim but maybe remove/ set to 42?)
     random.seed(1935)
 
     ### Split data in to training and test datasets
