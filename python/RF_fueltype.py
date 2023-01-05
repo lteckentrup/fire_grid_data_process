@@ -41,7 +41,7 @@ df_broad = df_broad.replace([3047],5)
 ### Mallees
 df_broad = df_broad.replace([3025,3026,3027,3028,3048,3049,3050,3051],6)
 
-def rf_function(dataframe):
+def rf_function(dataframe,n_est):
     ### Select features
     X = dataframe[['soil.density', 'clay', 'rad.short.jan', 'rad.short.jul', 
                    'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean', 
@@ -59,7 +59,7 @@ def rf_function(dataframe):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     ### Set up random forest classifier
-    clf = RandomForestClassifier(n_estimators=100)
+    clf = RandomForestClassifier(n_estimators=n_est)
 
     ### Fit random forest on training data
     classifier = clf.fit(X_train, y_train)
@@ -104,7 +104,7 @@ def rf_function(dataframe):
 
 def eval_rf(fuel_group):
     if fuel_group == 'Broad':
-        y_test,y_pred = rf_function(df_broad) 
+        y_test,y_pred = rf_function(df_broad,n_est) 
             
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(6.4,4.8))
@@ -119,7 +119,7 @@ def eval_rf(fuel_group):
         fname='confusion_matrix_broad.pdf'
 
     elif fuel_group == 'All':
-        y_test,y_pred = rf_function(df) 
+        y_test,y_pred = rf_function(df,n_est) 
 
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(12,9))
@@ -157,8 +157,8 @@ def eval_rf(fuel_group):
     ### Plot exact zeros without decimal
     for iy, ix in np.ndindex(disp.text_.shape):
         txt = disp.text_[iy, ix]
-        if txt.get_text() == "0.00":
-            txt.set_text("0")
+        if txt.get_text() == '0.00':
+            txt.set_text('0')
 
     ### Remove spines
     ax.spines['left'].set_visible(False)
@@ -178,9 +178,12 @@ def eval_rf(fuel_group):
 
     ### Save figure
     plt.savefig(fname)
+    
+### Set number of trees
+n_est = 100
 
 ### Create plots for confusion matrix for broad fuel type groups
-eval_rf('Broad')
+eval_rf('Broad',n_est)
 
 ### and individual fuel types
-eval_rf('All')
+eval_rf('All',n_est)
