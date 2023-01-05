@@ -5,10 +5,12 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import roc_curve, auc
+
 ### Import tools for plotting
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 import matplotlib as mpl
+
 ### Other libraries
 import pandas as pd
 import random
@@ -49,7 +51,8 @@ def rf_function(dataframe):
     ### Select target      
     y = dataframe['ft']
 
-    ### Select seed (following Jim but maybe remove/ set to 42?)
+    ### Select seed (following Jim but maybe remove/ set to 42?
+    ### Test whether results robust to seed at some point)
     random.seed(1935)
 
     ### Split data in to training and test datasets
