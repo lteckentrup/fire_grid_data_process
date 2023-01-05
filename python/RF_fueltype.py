@@ -79,7 +79,7 @@ def rf_function(dataframe,n_est):
     ### Grab feature importance and feature names
     importances = clf.feature_importances_
     feature_names = X.columns
-
+            
     ### Generate dataframe for feature importance
     importances_df = pd.DataFrame({'feature': feature_names,
                                    'importance': importances})
@@ -87,6 +87,13 @@ def rf_function(dataframe,n_est):
     print(importances_df.sort_values(by=['importance'],
           ascending=False))
 
+    '''
+    Alternative for importance: Shap - but takes forever
+    import shap
+    explainer = shap.Explainer(clf.predict, X_test)
+    shap_values = explainer(X_test)
+    '''
+            
     ### Calculate maximum depth of tree
     depths = [tree.tree_.max_depth for tree in clf.estimators_]
     max_depth = max(depths)
