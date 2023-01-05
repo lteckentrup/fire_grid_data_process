@@ -92,6 +92,9 @@ def rf_function(dataframe,n_est):
     import shap
     explainer = shap.Explainer(clf.predict, X_test)
     shap_values = explainer(X_test)
+    
+    shap.plots.beeswarm(shap_values)
+    or
     shap.summary_plot(shap_values, plot_type='violin')
     '''
             
