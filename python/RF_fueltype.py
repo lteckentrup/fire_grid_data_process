@@ -50,7 +50,7 @@ def rf_function(dataframe):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     ### Set up random forest classifier
-    clf = RandomForestClassifier(n_estimators=10)
+    clf = RandomForestClassifier(n_estimators=100)
 
     ### Fit random forest on training data
     classifier = clf.fit(X_train, y_train)
@@ -93,4 +93,85 @@ def rf_function(dataframe):
 
     return(y_test,y_pred)
 
-rf_function(df) 
+def eval_rf(fuel_group):
+    if fuel_group == 'Broad':
+        y_test,y_pred = rf_function(df_broad) 
+            
+        ### Set up figure size
+        fig, ax = plt.subplots(figsize=(6.4,4.8))
+
+        ### Fontsize confusion matrix
+        fontsize=10
+
+        ### Title
+        title='Confusion matrix (broad fuel type groups)'
+
+        ### Figure name
+        fname='confusion_matrix_broad.pdf'
+
+    elif fuel_group == 'All':
+        y_test,y_pred = rf_function(df) 
+
+        ### Set up figure size
+        fig, ax = plt.subplots(figsize=(12,9))
+
+         ### Fontsize confusion matrix
+        fontsize=6
+
+        ### Title
+        title='Confusion matrix (all fuel types)'
+
+        ### Figure name
+        fname='confusion_matrix_ind_fueltypes.pdf'
+
+    ### Generate colormap for normalised values
+    cmap = plt.cm.magma_r
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    cmap = mpl.colors.LinearSegmentedColormap.from_list('Custom cmap', 
+                                                        cmaplist, cmap.N)
+    bounds = np.arange(0,1.1,0.1)
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)                                                    
+    
+    ### Plot confusion matrix
+    disp = ConfusionMatrixDisplay.from_predictions(
+        y_test,
+        y_pred,
+        cmap=cmap, 
+        im_kw={'norm':norm},
+        text_kw={'fontsize':fontsize},
+        normalize='true',
+        xticks_rotation='vertical',
+        values_format='.2f',
+        ax=ax
+    )
+
+    ### Plot exact zeros without decimal
+    for iy, ix in np.ndindex(disp.text_.shape):
+        txt = disp.text_[iy, ix]
+        if txt.get_text() == "0.00":
+            txt.set_text("0")
+
+    ### Remove spines
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    ### Set labels
+    ax.set_xlabel('Prediction')
+    ax.set_ylabel('Observed')
+
+    ### Set title
+    ax.set_title(title)
+
+    ### Tight layout
+    plt.tight_layout()
+
+    ### Save figure
+    plt.savefig(fname)
+
+### Create plots for confusion matrix for broad fuel type groups
+eval_rf('Broad')
+
+### and individual fuel types
+eval_rf('All')
