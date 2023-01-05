@@ -27,19 +27,28 @@ df = pd.read_csv('ft.met.lai.csv')
 ### Drop irrelevant fuel types and nan
 df = df[df['ft'].isin(fueltypes)].dropna()
 
-### Generate dataframe with broad fuel groups
-### Wet forests
-df_broad = df.replace([3002,3006,3007,3011,3012,3013,3015],1)
-### Dry forests, woodlands
-df_broad = df_broad.replace([3005,3008,3009,3022,3043],2)
-### Shrublands with high flammability (?)
-df_broad = df_broad.replace([3014,3021,3024,3029],3)
-### Shrublands with low flammability (?)
-df_broad = df_broad.replace([3001,3003,3010,3023],4)
-### Not combustible
-df_broad = df_broad.replace([3047],5)
-### Mallees
-df_broad = df_broad.replace([3025,3026,3027,3028,3048,3049,3050,3051],6)
+### Drop irrelevant fuel types and nan
+df = df[df['ft'].isin(fueltypes)].dropna()
+
+### Generate fuel type groups
+wet_forests = [3002,3006,3007,3011,3012,3013,3015]
+dry_forests_woodlands = [3005,3008,3009,3022,3043]
+high_flammability_shrublands = [3014,3021,3024,3029]
+low_flammability_shrublands = [3001,3003,3010,3023]
+noncombustible = [3047]
+mallees = [3025,3026,3027,3028,3048,3049,3050,3051]
+
+### Generate new dataframe for broad fuel type groups
+df_broad = df.copy()
+df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
+                                                2 if x in dry_forests_woodlands else
+                                                3 if x in high_flammability_shrublands else
+                                                4 if x in low_flammability_shrublands else
+                                                5 if x in noncombustible else
+                                                6)
+
+### Function to set up random forest classifier; takes dataframe and number
+### of trees as arguments
 
 def rf_function(dataframe,n_est):
     ### Select features
