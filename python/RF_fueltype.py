@@ -5,12 +5,10 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import roc_curve, auc
-
 ### Import tools for plotting
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 import matplotlib as mpl
-
 ### Other libraries
 import pandas as pd
 import random
@@ -18,14 +16,11 @@ import numpy as np
 
 ### List of relevant fuel types ?? why are all grasslands excluded?
 fueltypes = [3001, 3002, 3003, 3005, 3006, 3007, 3008, 3009, 3010, 3011,
-             3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
-             3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
+            3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
+            3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
 
 ### Read in features + target
 df = pd.read_csv('ft.met.lai.csv')
-
-### Drop irrelevant fuel types and nan
-df = df[df['ft'].isin(fueltypes)].dropna()
 
 ### Drop irrelevant fuel types and nan
 df = df[df['ft'].isin(fueltypes)].dropna()
@@ -38,7 +33,6 @@ low_flammability_shrublands = [3001,3003,3010,3023]
 noncombustible = [3047]
 mallees = [3025,3026,3027,3028,3048,3049,3050,3051]
 
-### Generate new dataframe for broad fuel type groups
 df_broad = df.copy()
 df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
                                                 2 if x in dry_forests_woodlands else
@@ -47,21 +41,18 @@ df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
                                                 5 if x in noncombustible else
                                                 6)
 
-### Function to set up random forest classifier; takes dataframe and number
-### of trees as arguments
 
 def rf_function(dataframe,n_est):
     ### Select features
-    X = dataframe[['soil.density', 'clay', 'rad.short.jan', 'rad.short.jul', 
-                   'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean', 
-                   'map', 'pr.seaonality', 'lai.opt.mean', 'soil.depth', 
-                   'uran_pot', 'thorium_pot', 'vpd.mean']]     
+    X = dataframe[['soil.density', 'clay', 'rad.short.jan', 'rad.short.jul',
+                   'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean',
+                   'map', 'pr.seaonality', 'lai.opt.mean', 'soil.depth',
+                   'uran_pot', 'thorium_pot', 'vpd.mean']]
 
-    ### Select target      
+    ### Select target
     y = dataframe['ft']
 
-    ### Select seed (following Jim but maybe remove/ set to 42?
-    ### Test whether results robust to seed at some point)
+    ### Select seed following Jim
     random.seed(1935)
 
     ### Split data in to training and test datasets
@@ -71,40 +62,40 @@ def rf_function(dataframe,n_est):
     clf = RandomForestClassifier(n_estimators=n_est)
 
     ### Fit random forest on training data
-    classifier = clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train)
 
     ### Predict on test data
     y_pred = clf.predict(X_test)
 
     ### Calculate overall accuracy
     accuracy = clf.score(X_test, y_test)
-    print('Accuracy: '+str(accuracy))
+    print('Accuracy: ',accuracy)
 
     ### Calculate how many correct classifications
-    correct = (y_test == y_pred).sum()    
-    print('Number of correct classifications: '+str(correct))
+    correct = (y_test == y_pred).sum()
+    print('Number of correct classifications: ', correct)
 
     ### Grab feature importance and feature names
     importances = clf.feature_importances_
     feature_names = X.columns
 
     ### Generate dataframe for feature importance
-    importances_df = pd.DataFrame({'feature': feature_names, 
+    importances_df = pd.DataFrame({'feature': feature_names,
                                    'importance': importances})
 
     print(importances_df.sort_values(by=['importance'],
-          ascending=False))                               
+          ascending=False))
 
-    ### Calculate maximum depth of tree                               
+    ### Calculate maximum depth of tree
     depths = [tree.tree_.max_depth for tree in clf.estimators_]
     max_depth = max(depths)
 
     ### Calculate area under ROC curve for fueltype 3001
-    false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, 
-                                                                    y_pred, 
+    false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test,
+                                                                    y_pred,
                                                                     pos_label=3001)
     roc_auc = auc(false_positive_rate, true_positive_rate)
-    print('Area under ROC curve: '+str(roc_auc))
+    print('Area under ROC curve: ',roc_auc)
 
     ### Grab classification report
     print(classification_report(y_test, y_pred))
