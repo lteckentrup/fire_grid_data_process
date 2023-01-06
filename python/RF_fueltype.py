@@ -132,8 +132,6 @@ def hypertuning(classifier, dataframe, reduce_dim):
     X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,True)
 
     ### Choose parameters for hypertuning
-
-    # Dictionary mapping classifier names to classifier objects and hyperparameter grids
     classifiers = {
         'Naive Bayes': (GaussianNB(), 
                        {'var_smoothing': 
@@ -211,8 +209,7 @@ def ML_function(reduce_dim,classifier,dataframe,n_est):
     print('Number of correct classifications: ', correct)
 
     ### Get importance: Only possible for random forest, neural network, 
-    ### gradient boost.
-    ### Grab feature importance and feature names
+    ### gradient boost
     importance_methods = {
         'Random Forest': lambda clf: clf.feature_importances_,
         'Gradient Boost': lambda clf: clf.feature_importances_,
