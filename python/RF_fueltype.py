@@ -185,7 +185,7 @@ def ML_function(reduce_dim,classifier,dataframe,n_est):
     ### Grab data
     X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,reduce_dim)
 
-    ### Set up classifier
+    ### Set up classifier and pass optimized parameters
     classifiers = {
         'Naive Bayes': GaussianNB(),
         'Nearest Neighbors': KNeighborsClassifier(weights='distance'),
