@@ -141,9 +141,9 @@ def hypertuning(classifier, dataframe, reduce_dim):
                         }
                        ),
         'Nearest Neighbor': (KNeighborsClassifier(), 
-                            {'n_neighbors': [3, 5, 7, 9], 
-                             'p': [1, 2, 3],
-                             'weights': ['uniform', 'distance']}),
+                             {'n_neighbors': [3, 5, 7, 9], 
+                              'p': [1, 2, 3],
+                              'weights': ['uniform', 'distance']}),
         'Random Forest': (RandomForestClassifier(), 
                           {'n_estimators': [10, 50, 100, 200], 
                           'max_depth': [None, 5, 10, 15],
