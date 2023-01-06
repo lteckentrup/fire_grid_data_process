@@ -52,7 +52,8 @@ df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
                                                 3 if x in high_flammability_shrublands else
                                                 4 if x in low_flammability_shrublands else
                                                 5 if x in noncombustible else
-                                                6)
+                                                6 if x in mallees else
+                                                np.nan)
 
 def prep_data(dataframe,reduce_dim):
     ### Select target
@@ -63,7 +64,8 @@ def prep_data(dataframe,reduce_dim):
                    'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean',
                    'map', 'pr.seaonality', 'lai.opt.mean', 'soil.depth',
                    'uran_pot', 'thorium_pot', 'vpd.mean']]
-
+    
+    ### Reduce dimensions using PCA
     if reduce_dim == True:
         ### Standardize predictors
         scaler = StandardScaler()
@@ -108,7 +110,8 @@ def prep_data(dataframe,reduce_dim):
 
             # Print the feature name
             feature_names.append(feature_name)
-   
+            
+    ### Use all predictors
     elif reduce_dim == False:
         ### Split data in to training and test datasets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)      
