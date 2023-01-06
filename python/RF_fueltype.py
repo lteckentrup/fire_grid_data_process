@@ -137,23 +137,30 @@ def hypertuning(classifier, dataframe, reduce_dim):
     classifiers = {
         'Naive Bayes': (GaussianNB(), 
                        {'var_smoothing': 
-                       [1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]}),
+                        [1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
+                        }
+                       ),
         'Nearest Neighbor': (KNeighborsClassifier(), 
                             {'n_neighbors': [3, 5, 7, 9], 
                              'p': [1, 2, 3],
                              'weights': ['uniform', 'distance']}),
         'Random Forest': (RandomForestClassifier(), 
-                         {'n_estimators': [10, 50, 100, 200], 
-                         'max_depth': [None, 5, 10, 15],
-                         'min_samples_split': [2, 5, 10, 20, 50, 100]}),
-        'Gradient Boost': (GradientBoostingClassifier(), {}),
+                          {'n_estimators': [10, 50, 100, 200], 
+                          'max_depth': [None, 5, 10, 15],
+                          'min_samples_split': [2, 5, 10, 20, 50, 100]
+                          }
+                         ),
+        'Gradient Boost': (GradientBoostingClassifier(), 
+                           {}
+                          ),
         'Neural Network': (MLPClassifier(max_iter=100),
                            {'hidden_layer_sizes': [(10,30,10),(20,)],
-                           'activation': ['tanh', 'relu'],
-                           'solver': ['sgd', 'adam'],
-                           'alpha': [0.0001, 0.05],
-                           'learning_rate': ['constant','adaptive']}
-                            )
+                            'activation': ['tanh', 'relu'],
+                            'solver': ['sgd', 'adam'],
+                            'alpha': [0.0001, 0.05],
+                            'learning_rate': ['constant','adaptive']
+                            }
+                           )
     }
 
     # Get the classifier and hyperparameter grid for the specified classifier
@@ -172,8 +179,7 @@ def hypertuning(classifier, dataframe, reduce_dim):
         print(best_params)
 
     else:
-        # Classifier does not have hyperparameters
-        best_params = {}
+        pass
 
 def ML_function(reduce_dim,classifier,dataframe,n_est):
     ### Grab data
