@@ -5,6 +5,8 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import roc_curve, auc
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 ### Import tools for plotting
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
@@ -14,10 +16,13 @@ import pandas as pd
 import random
 import numpy as np
 
+### Select seed following Jim
+random.seed(1935)
+
 ### List of relevant fuel types ?? why are all grasslands excluded?
 fueltypes = [3001, 3002, 3003, 3005, 3006, 3007, 3008, 3009, 3010, 3011,
-            3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
-            3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
+             3012, 3013, 3014, 3015, 3021, 3022, 3023, 3024, 3025, 3026,
+             3027, 3028, 3029, 3043, 3047, 3048, 3049, 3050, 3051]
 
 ### Read in features + target
 df = pd.read_csv('ft.met.lai.csv')
@@ -42,22 +47,73 @@ df_broad['ft'] = df_broad['ft'].apply(lambda x: 1 if x in wet_forests else
                                                 5 if x in noncombustible else
                                                 6)
 
+def prep_data(dataframe,reduce_dim):
+    ### Select target
+    y = dataframe['ft']
 
-def rf_function(dataframe,n_est):
-    ### Select features
+    ### Select predictors
     X = dataframe[['soil.density', 'clay', 'rad.short.jan', 'rad.short.jul',
                    'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean',
                    'map', 'pr.seaonality', 'lai.opt.mean', 'soil.depth',
                    'uran_pot', 'thorium_pot', 'vpd.mean']]
 
-    ### Select target
-    y = dataframe['ft']
+    if reduce_dim == True:
+        ### Standardize predictors
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        ### Perform PCA on standardized predictors
+        pca = PCA()
+        X_pca = pca.fit_transform(X_scaled)
 
-    ### Select seed following Jim
-    random.seed(1935)
+        ### Calculate explained variance ratios for each principal component
+        explained_variance_ratio = pca.explained_variance_ratio_
 
-    ### Split data in to training and test datasets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+        ### Derive number of components: Keep at least 80% of the variance
+        target_k = 0.9
+        k = (explained_variance_ratio.cumsum() < target_k).sum() + 1
+
+        ### Perform PCA to reduce dimensions
+        pca = PCA(n_components=k)
+        X_pca = pca.fit_transform(X_scaled)
+
+        ### Split data in to training and test datasets
+        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.3)
+
+        ### Get feature names
+        feature_names = []
+        ### Grab all feature names
+        feature_names_full = X.columns
+
+        ### Grab PCA components
+        components = pca.components_
+
+        ### Iterate over the first n rows of the components matrix
+        for i in range(k):
+            # Get i-th row of the components matrix
+            row = components[i,:] 
+
+            # Get index of the element with the highest absolute value
+            max_index = np.argmax(np.abs(row))
+            
+            # Get the name of the corresponding feature
+            feature_name = feature_names_full[max_index]
+
+            # Print the feature name
+            feature_names.append(feature_name)
+   
+    elif reduce_dim == False:
+        ### Split data in to training and test datasets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)      
+        
+        ### Get feature names
+        feature_names = X.columns
+
+    return(X_train, X_test, y_train, y_test, feature_names)
+
+def rf_function(reduce_dim,dataframe,n_est):
+    ### Grab data
+    X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,reduce_dim)
 
     ### Set up random forest classifier
     clf = RandomForestClassifier(n_estimators=n_est)
@@ -78,26 +134,23 @@ def rf_function(dataframe,n_est):
 
     ### Grab feature importance and feature names
     importances = clf.feature_importances_
-    feature_names = X.columns
-            
+
     ### Generate dataframe for feature importance
     importances_df = pd.DataFrame({'feature': feature_names,
                                    'importance': importances})
 
-    print(importances_df.sort_values(by=['importance'],
-          ascending=False))
+    print(importances_df.sort_values(by=['importance'], ascending=False))
 
     '''
-    Alternative for importance: Shap - but takes forever
+    Alternative for importance: Shap
     import shap
     explainer = shap.Explainer(clf.predict, X_test)
     shap_values = explainer(X_test)
-    
     shap.plots.beeswarm(shap_values)
     or
     shap.summary_plot(shap_values, plot_type='violin')
     '''
-            
+
     ### Calculate maximum depth of tree
     depths = [tree.tree_.max_depth for tree in clf.estimators_]
     max_depth = max(depths)
@@ -114,9 +167,9 @@ def rf_function(dataframe,n_est):
 
     return(y_test,y_pred)
 
-def eval_rf(fuel_group):
+def eval_rf(fuel_group,reduce_dim,n_est):
     if fuel_group == 'Broad':
-        y_test,y_pred = rf_function(df_broad,n_est) 
+        y_test,y_pred = rf_function(reduce_dim,df_broad,n_est) 
             
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(6.4,4.8))
@@ -128,10 +181,10 @@ def eval_rf(fuel_group):
         title='Confusion matrix (broad fuel type groups)'
 
         ### Figure name
-        fname='confusion_matrix_broad.pdf'
+        fname='confusion_matrix_broad_PCA.pdf'
 
     elif fuel_group == 'All':
-        y_test,y_pred = rf_function(df,n_est) 
+        y_test,y_pred = rf_function(reduce_dim,df,n_est) 
 
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(12,9))
@@ -190,12 +243,12 @@ def eval_rf(fuel_group):
 
     ### Save figure
     plt.savefig(fname)
-    
+
 ### Set number of trees
-n_est = 100
+n_est = 10
 
 ### Create plots for confusion matrix for broad fuel type groups
-eval_rf('Broad',n_est)
+eval_rf('Broad',True,n_est)
 
 ### and individual fuel types
-eval_rf('All',n_est)
+# eval_rf('All',n_est)
