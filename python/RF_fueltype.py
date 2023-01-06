@@ -179,7 +179,7 @@ def hypertuning(classifier, dataframe, reduce_dim):
     else:
         pass
 
-def ML_function(reduce_dim,classifier,dataframe,n_est):
+def ML_function(reduce_dim,classifier,dataframe):
     ### Grab data
     X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,reduce_dim)
 
@@ -258,9 +258,9 @@ def ML_function(reduce_dim,classifier,dataframe,n_est):
 
     return(y_test,y_pred)
 
-def eval_rf(fuel_group,reduce_dim,n_est):
+def eval_rf(fuel_group,reduce_dim):
     if fuel_group == 'Broad':
-        y_test,y_pred = ML_function(reduce_dim,df_broad,n_est) 
+        y_test,y_pred = ML_function(reduce_dim,df_broad) 
             
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(6.4,4.8))
@@ -275,7 +275,7 @@ def eval_rf(fuel_group,reduce_dim,n_est):
         fname='confusion_matrix_broad_PCA.pdf'
 
     elif fuel_group == 'All':
-        y_test,y_pred = rf_function(reduce_dim,df,n_est) 
+        y_test,y_pred = rf_function(reduce_dim,df) 
 
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(12,9))
@@ -335,8 +335,5 @@ def eval_rf(fuel_group,reduce_dim,n_est):
     ### Save figure
     plt.savefig(fname)
 
-### Set number of trees
-n_est = 100
-
 ### Create plots for confusion matrix for broad fuel type groups
-eval_rf('Broad',True,n_est)
+eval_rf('Broad',True)
