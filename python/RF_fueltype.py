@@ -4,8 +4,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 ### Methods
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
+from sklearn.model_selection import GridSearchCV
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 ### Interpretation
 from sklearn.metrics import classification_report
@@ -64,7 +69,7 @@ def prep_data(dataframe,reduce_dim):
                    'wi', 'curvature_profile', 'curvature_plan', 'tmax.mean',
                    'map', 'pr.seaonality', 'lai.opt.mean', 'soil.depth',
                    'uran_pot', 'thorium_pot', 'vpd.mean']]
-    
+
     ### Reduce dimensions using PCA
     if reduce_dim == True:
         ### Standardize predictors
@@ -78,7 +83,7 @@ def prep_data(dataframe,reduce_dim):
         ### Calculate explained variance ratios for each principal component
         explained_variance_ratio = pca.explained_variance_ratio_
 
-        ### Derive number of components: Keep at least 80% of the variance
+        ### Derive number of components: Keep at least 90% of the variance
         target_k = 0.9
         k = (explained_variance_ratio.cumsum() < target_k).sum() + 1
 
@@ -110,7 +115,7 @@ def prep_data(dataframe,reduce_dim):
 
             # Print the feature name
             feature_names.append(feature_name)
-            
+    
     ### Use all predictors
     elif reduce_dim == False:
         ### Split data in to training and test datasets
@@ -121,14 +126,71 @@ def prep_data(dataframe,reduce_dim):
 
     return(X_train, X_test, y_train, y_test, feature_names)
 
-def rf_function(reduce_dim,dataframe,n_est):
+### Hypertuning using GridSearchCV
+def hypertuning(classifier, dataframe, reduce_dim):
+    ### Read in training data
+    X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,True)
+
+    ### Choose parameters for hypertuning
+
+    # Dictionary mapping classifier names to classifier objects and hyperparameter grids
+    classifiers = {
+        'Naive Bayes': (GaussianNB(), 
+                       {'var_smoothing': 
+                       [1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]}),
+        'Nearest Neighbor': (KNeighborsClassifier(), 
+                            {'n_neighbors': [3, 5, 7, 9], 
+                             'p': [1, 2, 3],
+                             'weights': ['uniform', 'distance']}),
+        'Random Forest': (RandomForestClassifier(), 
+                         {'n_estimators': [10, 50, 100, 200], 
+                         'max_depth': [None, 5, 10, 15],
+                         'min_samples_split': [2, 5, 10, 20, 50, 100]}),
+        'Gradient Boost': (GradientBoostingClassifier(), {}),
+        'Neural Network': (MLPClassifier(max_iter=100),
+                           {'hidden_layer_sizes': [(10,30,10),(20,)],
+                           'activation': ['tanh', 'relu'],
+                           'solver': ['sgd', 'adam'],
+                           'alpha': [0.0001, 0.05],
+                           'learning_rate': ['constant','adaptive']}
+                            )
+    }
+
+    # Get the classifier and hyperparameter grid for the specified classifier
+    clf, param_grid = classifiers[classifier]
+
+    if param_grid:
+        # Create the grid search object
+        grid_search = GridSearchCV(clf, param_grid, cv=5, n_jobs=-1, 
+                                   scoring='accuracy')
+
+        # Fit the grid search object to the training data
+        grid_search.fit(X_train, y_train)
+
+        # Get the best hyperparameters
+        best_params = grid_search.best_params_
+        print(best_params)
+
+    else:
+        # Classifier does not have hyperparameters
+        best_params = {}
+
+def ML_function(reduce_dim,classifier,dataframe,n_est):
     ### Grab data
     X_train, X_test, y_train, y_test, feature_names = prep_data(dataframe,reduce_dim)
 
-    ### Set up random forest classifier
-    clf = RandomForestClassifier(n_estimators=n_est)
+    ### Set up classifier
+    classifiers = {
+        'Naive Bayes': GaussianNB(),
+        'Nearest Neighbors': KNeighborsClassifier(weights='distance'),
+        'Random Forest': RandomForestClassifier(n_jobs=-1),
+        'Gradient Boost': GradientBoostingClassifier(),
+        'Neural Network': MLPClassifier(hidden_layer_sizes=(10, 10))
+        }
+    
+    clf = classifiers[classifier]
 
-    ### Fit random forest on training data
+    ### Fit classifier on training data
     clf.fit(X_train, y_train)
 
     ### Predict on test data
@@ -142,14 +204,29 @@ def rf_function(reduce_dim,dataframe,n_est):
     correct = (y_test == y_pred).sum()
     print('Number of correct classifications: ', correct)
 
+    ### Get importance: Only possible for random forest, neural network, 
+    ### gradient boost.
     ### Grab feature importance and feature names
-    importances = clf.feature_importances_
+    importance_methods = {
+        'Random Forest': lambda clf: clf.feature_importances_,
+        'Gradient Boost': lambda clf: clf.feature_importances_,
+        'Neural Network': lambda clf: np.sum(np.abs(clf.coefs_[0]), axis=1)
+        }
 
-    ### Generate dataframe for feature importance
-    importances_df = pd.DataFrame({'feature': feature_names,
-                                   'importance': importances})
+    # Get method for obtaining feature importances for the specified classifier
+    importance_method = importance_methods.get(classifier)
 
-    print(importances_df.sort_values(by=['importance'], ascending=False))
+    if importance_method:
+        # Get the feature importances using the specified method
+        importances = importance_method(clf)
+    
+        # Generate dataframe for feature importance
+        importances_df = pd.DataFrame({'feature': feature_names,
+                                    'importance': importances})
+        # print(importances_df.sort_values(by=['importance'], ascending=False))
+
+    else:
+        pass
 
     '''
     Alternative for importance: Shap
@@ -161,25 +238,26 @@ def rf_function(reduce_dim,dataframe,n_est):
     shap.summary_plot(shap_values, plot_type='violin')
     '''
 
-    ### Calculate maximum depth of tree
-    depths = [tree.tree_.max_depth for tree in clf.estimators_]
-    max_depth = max(depths)
+    if classifier == 'Random Forest':
+        ### Calculate maximum depth of tree
+        depths = [tree.tree_.max_depth for tree in clf.estimators_]
+        max_depth = max(depths)
 
     ### Calculate area under ROC curve for fueltype 3001
     false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test,
                                                                     y_pred,
-                                                                    pos_label=3001)
+                                                                    pos_label=1)
     roc_auc = auc(false_positive_rate, true_positive_rate)
     print('Area under ROC curve: ',roc_auc)
 
-    ### Grab classification report
-    print(classification_report(y_test, y_pred))
+    # ### Grab classification report
+    # print(classification_report(y_test, y_pred))
 
     return(y_test,y_pred)
 
 def eval_rf(fuel_group,reduce_dim,n_est):
     if fuel_group == 'Broad':
-        y_test,y_pred = rf_function(reduce_dim,df_broad,n_est) 
+        y_test,y_pred = ML_function(reduce_dim,df_broad,n_est) 
             
         ### Set up figure size
         fig, ax = plt.subplots(figsize=(6.4,4.8))
@@ -255,10 +333,7 @@ def eval_rf(fuel_group,reduce_dim,n_est):
     plt.savefig(fname)
 
 ### Set number of trees
-n_est = 10
+n_est = 100
 
 ### Create plots for confusion matrix for broad fuel type groups
 eval_rf('Broad',True,n_est)
-
-### and individual fuel types
-# eval_rf('All',n_est)
