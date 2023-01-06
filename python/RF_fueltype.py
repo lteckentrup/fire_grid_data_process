@@ -1,16 +1,23 @@
 ### Import relevant sklearn libraries
-from sklearn.ensemble import RandomForestClassifier
+### Preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.metrics import roc_curve, auc
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+
+### Methods
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
+
+### Interpretation
+from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_curve, auc
+
 ### Import tools for plotting
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 import matplotlib as mpl
+
 ### Other libraries
 import pandas as pd
 import random
